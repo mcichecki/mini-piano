@@ -10,7 +10,7 @@ public enum Note: String {
     C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, H2, H2b
 }
 
-public class PianoScene: SKScene {
+public class PianoScene: SKScene, AVAudioPlayerDelegate {
     
     private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .H1,
                                       .C2, .D2, .E2, .F2, .G2, .A2, .H2]
@@ -21,12 +21,15 @@ public class PianoScene: SKScene {
     private var noteSounds: [String: AVAudioPlayer] = [:]
     
     // UI
+    private var playSongButton = UIButton(frame: CGRect())
+    
     
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
         self.backgroundColor = UIColor(red: 59/255.0, green: 60/255.0, blue: 61/255.0, alpha: 1.0)
         mapSounds()
         setupKeys()
+        setupButtons()
     }
     
     private func setupKeys() {
@@ -87,6 +90,51 @@ public class PianoScene: SKScene {
             noteSound.prepareToPlay()
         }
     }
+    
+    private func setupButtons() {
+        playSongButton.addTarget(self, action: #selector(playSongPressed), for: .touchUpInside)
+        playSongButton.frame = CGRect(x: 0, y: 0, width: 120, height: 40)
+        playSongButton.tintColor = UIColor.red
+        playSongButton.setTitle("▶ play song", for: .normal)
+        playSongButton.setTitleColor(UIColor.white, for: .normal)
+        self.view!.addSubview(playSongButton)
+    }
+    
+    @objc private func playSongPressed() {
+        print("### pressed")
+        let notes: [Note] = [.C2, .C2, .E2, .G2,
+                             .A1, .A1, .C2, .E2,
+                             .F1, .F1, .A1, .C2,
+                             .G1, .G1, .H1, .D2]
+        
+        //        queuePlayer.insert(noteSounds[notes[0].rawValue], after: nil)
+//        let avPlayer = AVPlayerItem(asset: AVAsset(url: Bundle.main.url(forResource: notes[0].rawValue,
+//                                                                        withExtension: "mp3")!))
+//        var avPlayerItems: [AVPlayerItem] = []
+//        for note in notes {
+//            avPlayerItems.append(AVPlayerItem(asset: AVAsset(url: Bundle.main.url(forResource: note.rawValue, withExtension: "mp3")!)))
+//        }
+//
+//        let queue = AVQueuePlayer(items: avPlayerItems)
+//        queue.play()
+        
+        
+//        for (index, note) in notes.enumerated() {
+////            print("### \(index) - \(Double(index)/2))")
+//            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index)/2, execute: {
+//                print(note.rawValue)
+//                let player: AVAudioPlayer = self.noteSounds[note.rawValue]!
+//                player.currentTime = TimeInterval(0.0)
+//                player.play()
+//            })
+//        }
+        let t = DispatchSource.makeTimerSource(flags: .strict, queue: .main)
+        t.schedule(deadline: .now(), repeating: 0.5)
+        t.setEventHandler {
+            print("TEST")
+        }
+        t.resume()
+    }
 }
 
 public class PianoKey: SKShapeNode {
@@ -98,11 +146,13 @@ public class PianoKey: SKShapeNode {
     private var sound: AVAudioPlayer!
     private let caShapeLayer = CAShapeLayer()
     private var keyAlpha: CGFloat = 1.0
+    private var keyPosition: CGPoint = CGPoint()
     
     public init(note: Note, position: CGPoint, sound: AVAudioPlayer) {
         super.init()
         
         let uiBezierPath = keyPath(position)
+        self.keyPosition = position
         self.path = uiBezierPath
         self.fillColor = keyColor
         self.isUserInteractionEnabled = true
@@ -120,6 +170,30 @@ public class PianoKey: SKShapeNode {
     
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         playSound()
+        showNote()
+    }
+    
+    private func showNote() {
+        let noteLabel = SKLabelNode(fontNamed: "SFCompactText-Regular")
+        let moveUpAction = SKAction.moveBy(x: 0, y: 300, duration: 2.0)
+        var width: CGFloat = 0.0
+        if self is WhitePianoKey {
+            width = WhitePianoKey.width
+        } else {
+            width = BlackPianoKey.width
+        }
+        noteLabel.position = CGPoint(x: self.keyPosition.x + width/2,
+                                     y: self.keyPosition.y + WhitePianoKey.height * 0.7)
+        noteLabel.text = note.rawValue
+        noteLabel.fontSize = 24.0
+        noteLabel.fontColor = UIColor.white
+        noteLabel.zPosition = -1.0
+        
+        noteLabel.run(moveUpAction) {
+            noteLabel.removeFromParent()
+        }
+        
+        self.addChild(noteLabel)
     }
     
     private func playSound() {
@@ -175,7 +249,7 @@ public class BlackPianoKey: PianoKey {
 }
 
 extension UIColor {
-    static var piano = UIColor(red: 11/255.0, green: 24/255.0, blue: 41/255.0, alpha: 1.0)
+    static var piano = UIColor(red: 33/255.0, green: 33/255.0, blue: 35/255.0, alpha: 1.0)
     static var whiteKeyPressed = UIColor(red: 226/255.0, green: 226/255.0, blue: 226/255.0, alpha: 1.0)
     static var blackKey = UIColor(red: 3/255.0, green: 3/255.0, blue: 3/255.0, alpha: 1.0)
     static var blackKeyPressed = UIColor(red: 43/255.0, green: 43/255.0, blue: 43/255.0, alpha: 1.0)
