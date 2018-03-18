@@ -7,7 +7,8 @@ import AVFoundation
 
 public enum Note: String {
     case C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, H1, H1b,
-    C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, H2, H2b
+    C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, H2, H2b,
+    pause
 }
 
 public class PianoScene: SKScene, AVAudioPlayerDelegate {
@@ -23,6 +24,12 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
     // UI
     private var playSongButton = UIButton(frame: CGRect())
     
+    private var isPlaying: Bool = false {
+        willSet {
+            playSongButton.setTitleColor(newValue ? UIColor.gray : UIColor.white,
+                                         for: .normal)
+        }
+    }
     
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
@@ -101,39 +108,35 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
     }
     
     @objc private func playSongPressed() {
-        print("### pressed")
-        let notes: [Note] = [.C2, .C2, .E2, .G2,
-                             .A1, .A1, .C2, .E2,
-                             .F1, .F1, .A1, .C2,
-                             .G1, .G1, .H1, .D2]
-        
-        //        queuePlayer.insert(noteSounds[notes[0].rawValue], after: nil)
-//        let avPlayer = AVPlayerItem(asset: AVAsset(url: Bundle.main.url(forResource: notes[0].rawValue,
-//                                                                        withExtension: "mp3")!))
-//        var avPlayerItems: [AVPlayerItem] = []
-//        for note in notes {
-//            avPlayerItems.append(AVPlayerItem(asset: AVAsset(url: Bundle.main.url(forResource: note.rawValue, withExtension: "mp3")!)))
-//        }
-//
-//        let queue = AVQueuePlayer(items: avPlayerItems)
-//        queue.play()
-        
-        
-//        for (index, note) in notes.enumerated() {
-////            print("### \(index) - \(Double(index)/2))")
-//            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index)/2, execute: {
-//                print(note.rawValue)
-//                let player: AVAudioPlayer = self.noteSounds[note.rawValue]!
-//                player.currentTime = TimeInterval(0.0)
-//                player.play()
-//            })
-//        }
-        let t = DispatchSource.makeTimerSource(flags: .strict, queue: .main)
-        t.schedule(deadline: .now(), repeating: 0.5)
-        t.setEventHandler {
-            print("TEST")
+        if isPlaying {
+            return
         }
-        t.resume()
+        
+        isPlaying = true
+        let notes: [Note] = [ .C2, .C2, .E2, .G2,
+                              .A1, .A1, .C2, .E2,
+                              .F1, .F1, .A1, .C2,
+                              .G1, .G1, .H1, .D2,
+                              .C2, .C2, .C2, .pause, .pause,
+                              .C2, .H1, .A1, .H1, .C2, .D2, .pause,
+                              .E2, .E2, .E2, .pause,
+                              .E2, .D2, .C2, .D2, .E2, .F2, .pause,
+                              .G2, .pause, .C2, .pause, .A2, .pause,
+                              .G2, .F2, .E2, .D2, .C2]
+        
+        var i = 0
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { (timer) in
+            if notes[i] != .pause {
+                let player: AVAudioPlayer = self.noteSounds[notes[i].rawValue]!
+                player.currentTime = TimeInterval(0.1)
+                player.play()
+                if i == notes.count - 1 {
+                    self.isPlaying = false
+                    timer.invalidate()
+                }
+            }
+            i += 1
+        }
     }
 }
 
