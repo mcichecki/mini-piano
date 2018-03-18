@@ -23,9 +23,6 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
     
     private var timer: Timer?
     
-    // UI
-    private var playSongButton = UIButton(frame: CGRect())
-    
     private var isPlaying: Bool = false {
         willSet {
             playSongButton.setTitleColor(newValue ? UIColor.gray : UIColor.white,
@@ -35,16 +32,24 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
         }
     }
     
+    private var emitter = SKEmitterNode()
+    
+    // UI
+    private var playSongButton = UIButton(frame: CGRect())
+    private var sizeButton = UIButton(frame: CGRect())
+    private var widthSwitch = UISwitch(frame: CGRect())
+    
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
         self.backgroundColor = UIColor(red: 59/255.0, green: 60/255.0, blue: 61/255.0, alpha: 1.0)
         mapSounds()
         setupKeys()
-        setupButtons()
+        setupButtonsAndControls()
+        emitter = setupEmitter()
     }
     
     private func setupKeys() {
-        let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width
+        let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
         var endingPoint: CGFloat!
         var topPoint: CGFloat!
         var i = 0
@@ -102,13 +107,26 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
         }
     }
     
-    private func setupButtons() {
+    private func setupButtonsAndControls() {
         playSongButton.addTarget(self, action: #selector(playSongPressed), for: .touchUpInside)
         playSongButton.frame = CGRect(x: 0, y: view!.frame.height - 40, width: 120, height: 40)
-        playSongButton.tintColor = UIColor.red
         playSongButton.setTitle("▶ play song", for: .normal)
         playSongButton.setTitleColor(UIColor.white, for: .normal)
         self.view!.addSubview(playSongButton)
+        
+//        sizeButton.addTarget(self, action: #selector(sizePressed), for: .touchUpInside)
+//        sizeButton.frame = CGRect(x: self.frame.width/2 - 60, y: view!.frame.height - 40, width: 120, height: 40)
+//        sizeButton.setTitle("change size", for: .normal)
+//        sizeButton.setTitleColor(UIColor.white, for: .normal)
+//        self.view!.addSubview(sizeButton)
+        
+        widthSwitch.addTarget(self,
+                              action: #selector(widthValueChanged(widthSwitch:)),
+                              for: .valueChanged)
+        widthSwitch.frame = CGRect(x: self.frame.width/2 - 40, y: view!.frame.height - 40, width: 0, height: 0)
+        widthSwitch.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+        widthSwitch.onTintColor = UIColor.switchControl
+        self.view!.addSubview(widthSwitch)
     }
     
     @objc private func playSongPressed() {
@@ -137,6 +155,8 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
                 
                 if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
                     pianoKey.handleTouch()
+                    self.generateEmitter(position: CGPoint(x: pianoKey.frame.midX,
+                                                      y: pianoKey.frame.maxY))
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
                         pianoKey.handleEndOfTouch()
                     })
@@ -149,6 +169,36 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
             }
             i += 1
         }
+    }
+    
+    @objc private func sizePressed() {
+        WhitePianoKey.width = 40
+        removeAllChildren()
+        setupKeys()
+    }
+    
+    @objc private func widthValueChanged(widthSwitch: UISwitch) {
+        WhitePianoKey.width = widthSwitch.isOn ? 40 : 32
+        removeAllChildren()
+        setupKeys()
+    }
+    
+    private func setupEmitter() -> SKEmitterNode {
+        let emitter = SKEmitterNode(fileNamed: "HeartParticle")!
+        emitter.position = CGPoint(x: frame.midX, y: frame.midY)
+        emitter.targetNode = self
+        emitter.particleBirthRate = 0.0
+        self.addChild(emitter)
+        return emitter
+    }
+    
+    private func generateEmitter(position: CGPoint) {
+        setupEmitter()
+        emitter.particleBirthRate = 20.0
+        emitter.position = position
+        
+        let action = SKAction.move(by: CGVector.init(dx: 0, dy: 100.0), duration: 1.0)
+        emitter.run(action)
     }
 }
 
@@ -222,7 +272,6 @@ public class PianoKey: SKShapeNode {
         noteLabel.name = "note"
         
         noteLabel.run(moveUpAction) {
-            print("### REMOVE")
             noteLabel.removeFromParent()
         }
         
@@ -238,7 +287,7 @@ public class PianoKey: SKShapeNode {
 
 public class WhitePianoKey: PianoKey {
     public static let height: CGFloat = 140.0
-    public static let width: CGFloat = 32.0
+    public static var width: CGFloat = 32.0
     
     public override func keyPath(_ position: CGPoint) -> CGPath {
         let keyRect = CGRect(origin: position, size: CGSize(width: WhitePianoKey.width, height: WhitePianoKey.height))
@@ -286,6 +335,7 @@ extension UIColor {
     static var whiteKeyPressed = UIColor(red: 226/255.0, green: 226/255.0, blue: 226/255.0, alpha: 1.0)
     static var blackKey = UIColor(red: 3/255.0, green: 3/255.0, blue: 3/255.0, alpha: 1.0)
     static var blackKeyPressed = UIColor(red: 43/255.0, green: 43/255.0, blue: 43/255.0, alpha: 1.0)
+    static var switchControl = UIColor(red: 167/255.0, green: 239/255.0, blue: 139/255.0, alpha: 1.0)
 }
 
 let pianoScene = PianoScene(size: CGSize(width: 600.0, height: 350.0))
