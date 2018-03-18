@@ -47,7 +47,7 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
         
         for (index, whiteNote) in whiteNotes.enumerated() {
             let position = CGPoint(x: startingPoint + CGFloat(index) * (WhitePianoKey.width + 1.0),
-                                   y: 100)
+                                   y: 80)
             let whitePianoKey = WhitePianoKey(note: whiteNote,
                                               position: position,
                                               sound: noteSounds[whiteNote.rawValue]!)
@@ -100,7 +100,7 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
     
     private func setupButtons() {
         playSongButton.addTarget(self, action: #selector(playSongPressed), for: .touchUpInside)
-        playSongButton.frame = CGRect(x: 0, y: 0, width: 120, height: 40)
+        playSongButton.frame = CGRect(x: 0, y: view!.frame.height - 40, width: 120, height: 40)
         playSongButton.tintColor = UIColor.red
         playSongButton.setTitle("▶ play song", for: .normal)
         playSongButton.setTitleColor(UIColor.white, for: .normal)
@@ -113,23 +113,28 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
         }
         
         isPlaying = true
-        let notes: [Note] = [ .C2, .C2, .E2, .G2,
-                              .A1, .A1, .C2, .E2,
-                              .F1, .F1, .A1, .C2,
-                              .G1, .G1, .H1, .D2,
-                              .C2, .C2, .C2, .pause, .pause,
-                              .C2, .H1, .A1, .H1, .C2, .D2, .pause,
-                              .E2, .E2, .E2, .pause,
-                              .E2, .D2, .C2, .D2, .E2, .F2, .pause,
-                              .G2, .pause, .C2, .pause, .A2, .pause,
-                              .G2, .F2, .E2, .D2, .C2]
+        let notes: [Note] = [ .C2, .C2, .E2, .G2]
+//                              .A1, .A1, .C2, .E2,
+//                              .F1, .F1, .A1, .C2,
+//                              .G1, .G1, .H1, .D2,
+//                              .C2, .C2, .C2, .pause, .pause,
+//                              .C2, .H1, .A1, .H1, .C2, .D2, .pause,
+//                              .E2, .E2, .E2, .pause,
+//                              .E2, .D2, .C2, .D2, .E2, .F2, .pause,
+//                              .G2, .pause, .C2, .pause, .A2, .pause,
+//                              .G2, .F2, .E2, .D2, .C2]
         
         var i = 0
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { (timer) in
             if notes[i] != .pause {
-                let player: AVAudioPlayer = self.noteSounds[notes[i].rawValue]!
-                player.currentTime = TimeInterval(0.1)
-                player.play()
+                
+                if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
+                    pianoKey.handleTouch()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+                        pianoKey.handleEndOfTouch()
+                    })
+                }
+                
                 if i == notes.count - 1 {
                     self.isPlaying = false
                     timer.invalidate()
@@ -158,6 +163,7 @@ public class PianoKey: SKShapeNode {
         self.keyPosition = position
         self.path = uiBezierPath
         self.fillColor = keyColor
+        self.name = note.rawValue
         self.isUserInteractionEnabled = true
         self.note = note
         self.sound = sound
@@ -172,13 +178,27 @@ public class PianoKey: SKShapeNode {
     }
     
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if atPoint(touches.first!.location(in: self)).name == self.name {
+            handleTouch()
+        }
+    }
+    
+    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        handleEndOfTouch()
+    }
+    
+    public func handleTouch() {
         playSound()
         showNote()
     }
     
-    private func showNote() {
+    public func handleEndOfTouch() {
+        fatalError("Must be implemented by the subclass")
+    }
+    
+    func showNote() {
         let noteLabel = SKLabelNode(fontNamed: "SFCompactText-Regular")
-        let moveUpAction = SKAction.moveBy(x: 0, y: 300, duration: 2.0)
+        let moveUpAction = SKAction.moveBy(x: 0, y: 180, duration: 1.5)
         var width: CGFloat = 0.0
         if self is WhitePianoKey {
             width = WhitePianoKey.width
@@ -215,12 +235,12 @@ public class WhitePianoKey: PianoKey {
         return UIBezierPath(roundedRect: keyRect, cornerRadius: 5.0).cgPath
     }
     
-    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
+    public override func handleTouch() {
+        super.handleTouch()
         self.fillColor = UIColor.whiteKeyPressed
     }
     
-    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public override func handleEndOfTouch() {
         self.fillColor = UIColor.white
     }
 }
@@ -241,12 +261,12 @@ public class BlackPianoKey: PianoKey {
                             cornerRadius: 5.0).cgPath
     }
     
-    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
+    public override func handleTouch() {
+        super.handleTouch()
         self.fillColor = UIColor.blackKeyPressed
     }
     
-    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public override func handleEndOfTouch() {
         self.fillColor = UIColor.blackKey
     }
 }
