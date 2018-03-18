@@ -21,6 +21,8 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
     
     private var noteSounds: [String: AVAudioPlayer] = [:]
     
+    private var timer: Timer?
+    
     // UI
     private var playSongButton = UIButton(frame: CGRect())
     
@@ -28,6 +30,8 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
         willSet {
             playSongButton.setTitleColor(newValue ? UIColor.gray : UIColor.white,
                                          for: .normal)
+            playSongButton.setTitle(newValue ? "◼︎ stop song": "▶ play song",
+                                    for: .normal)
         }
     }
     
@@ -109,23 +113,26 @@ public class PianoScene: SKScene, AVAudioPlayerDelegate {
     
     @objc private func playSongPressed() {
         if isPlaying {
+            timer?.invalidate()
+            timer = nil
+            isPlaying = !isPlaying
             return
         }
         
         isPlaying = true
-        let notes: [Note] = [ .C2, .C2, .E2, .G2]
-//                              .A1, .A1, .C2, .E2,
-//                              .F1, .F1, .A1, .C2,
-//                              .G1, .G1, .H1, .D2,
-//                              .C2, .C2, .C2, .pause, .pause,
-//                              .C2, .H1, .A1, .H1, .C2, .D2, .pause,
-//                              .E2, .E2, .E2, .pause,
-//                              .E2, .D2, .C2, .D2, .E2, .F2, .pause,
-//                              .G2, .pause, .C2, .pause, .A2, .pause,
-//                              .G2, .F2, .E2, .D2, .C2]
+        let notes: [Note] = [ .C2, .C2, .E2, .G2,
+                              .A1, .A1, .C2, .E2,
+                              .F1, .F1, .A1, .C2,
+                              .G1, .G1, .H1, .D2,
+                              .C2, .C2, .C2, .pause, .pause,
+                              .C2, .H1, .A1, .H1, .C2, .D2, .pause,
+                              .E2, .E2, .E2, .pause,
+                              .E2, .D2, .C2, .D2, .E2, .F2, .pause,
+                              .G2, .pause, .C2, .pause, .A2, .pause,
+                              .G2, .F2, .E2, .D2, .C2]
         
         var i = 0
-        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { (timer) in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { (timer) in
             if notes[i] != .pause {
                 
                 if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
@@ -178,7 +185,8 @@ public class PianoKey: SKShapeNode {
     }
     
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if atPoint(touches.first!.location(in: self)).name == self.name {
+        let location = touches.first!.location(in: self)
+        if atPoint(location).name == self.name && location.y <= self.frame.maxY {
             handleTouch()
         }
     }
@@ -211,8 +219,10 @@ public class PianoKey: SKShapeNode {
         noteLabel.fontSize = 24.0
         noteLabel.fontColor = UIColor.white
         noteLabel.zPosition = -1.0
+        noteLabel.name = "note"
         
         noteLabel.run(moveUpAction) {
+            print("### REMOVE")
             noteLabel.removeFromParent()
         }
         
