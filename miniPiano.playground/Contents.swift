@@ -45,8 +45,9 @@ public class PianoScene: SKScene {
                                            for: .normal)
             self.backgroundColor = newValue ? UIColor.jingleBells : UIColor.background
             if snowEmitter != nil && !newValue {
-                print("TEGES")
-                snowEmitter?.particleBirthRate
+                snowEmitter!.particleLifetime = 0.0
+                snowEmitter!.removeFromParent()
+                print("END OF JINGLE BELLS - \(snowEmitter?.particleLifetime)")
             }
         }
     }
@@ -275,7 +276,6 @@ public class PianoScene: SKScene {
         playSong(with: jingleBellsNotes,
                  speed: 0.3,
                  chosenSong: Song(rawValue: sender.tag)!)
-        generateSnow()
     }
     
     private func playSong(with notes: [Note], speed: TimeInterval, chosenSong: Song) {
@@ -292,6 +292,7 @@ public class PianoScene: SKScene {
             isHeartAndSoulPlaying = true
         case .jingleBells:
             isJingleBellsPlaying = true
+            generateSnow()
         }
         
         var i = 0
@@ -364,8 +365,7 @@ public class PianoScene: SKScene {
     
     private func generateSnow() {
         snowEmitter = SKEmitterNode(fileNamed: "SnowParticle")!
-        snowEmitter!.position = CGPoint(x: 0, y: self.frame.maxY)
-        snowEmitter!.particleBirthRate = 20.0
+        snowEmitter!.position = CGPoint(x: self.view!.frame.width/2, y: self.frame.maxY)
         self.addChild(snowEmitter!)
     }
 }
