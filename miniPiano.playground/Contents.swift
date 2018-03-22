@@ -47,7 +47,6 @@ public class PianoScene: SKScene {
             if snowEmitter != nil && !newValue {
                 snowEmitter!.particleLifetime = 0.0
                 snowEmitter!.removeFromParent()
-                print("END OF JINGLE BELLS - \(snowEmitter?.particleLifetime)")
             }
         }
     }
@@ -63,52 +62,10 @@ public class PianoScene: SKScene {
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
         self.backgroundColor = UIColor.background
-//        setupBackground()
         mapSounds()
         setupKeys()
         setupUIComponents()
     }
-    
-    private func setupBackground() {
-//        let gradientLayer = CAGradientLayer()
-//        gradientLayer.colors = [UIColor.red.cgColor, UIColor.yellow.cgColor]
-//        UIGraphicsBeginImageContextWithOptions(CGSize.init(width: self.view!.frame.width, height: self.view!.frame.height), true, 1.0)
-//        gradientLayer.render(in: UIGraphicsGetCurrentContext()!)
-//
-//
-//        let image = UIGraphicsGetImageFromCurrentImageContext()
-//        UIGraphicsGetImageFromCurrentImageContext()
-//
-//        let texture = SKTexture(cgImage: image!.cgImage!)
-//        let node = SKSpriteNode(texture: texture)
-//        node.anchorPoint = CGPoint.zero
-//        node.zPosition = -10.0
-//        self.addChild(node)
-        
-//        let gradientView = UIView(frame: self.view!.frame)
-        
-//        let context = UIGraphicsGetCurrentContext()
-//        let colors = [UIColor.yellow.cgColor, UIColor.red.cgColor]
-//        let backgroundGradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 1])
-//        let center = CGPoint(x: self.view!.bounds.midX, y: self.view!.bounds.midY)
-//        context?.drawRadialGradient(backgroundGradient!,
-//                                    startCenter: center,
-//                                    startRadius: 20,
-//                                    endCenter: center,
-//                                    endRadius: min(self.view!.bounds.width, self.view!.bounds.height),
-//                                    options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
-        
-//        let gradient = CAGradientLayer()
-//        gradient.frame = self.view!.bounds
-//        gradient.colors = [UIColor.red.cgColor, UIColor.yellow.cgColor]
-//
-//        gradientView.layer.insertSublayer(gradient, at: 0)
-//        gradientView.layer.zPosition = -10.0
-//        self.view!.addSubview(gradientView)
-        
-    }
-    
-    
     
     private func setupKeys() {
         let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
@@ -370,6 +327,90 @@ public class PianoScene: SKScene {
     }
 }
 
+// # #  # ###  3
+// ## ##  ###
+public class WelcomeScene: SKScene {
+    
+    let speechSynthesizer = AVSpeechSynthesizer()
+    
+    private let leftView: UIView = UIView(frame: CGRect.zero)
+    private let rightView: UIView = UIView(frame: CGRect.zero)
+    private let speechLabel: UILabel = UILabel(frame: CGRect.zero)
+    private let skipButton: UIButton = UIButton(frame: CGRect.zero)
+    
+    public override func didMove(to view: SKView) {
+        super.didMove(to: view)
+        self.backgroundColor = UIColor.background
+
+        setupWelcomeScene()
+    }
+    
+    private func setupWelcomeScene() {
+        let frameWidth = self.view!.frame.width
+        let frameHeight = self.view!.frame.height
+        
+        leftView.frame = CGRect(x: 0,
+                                    y: 0,
+                                    width: frameWidth/2,
+                                    height: frameHeight)
+        leftView.backgroundColor = UIColor.darkBackground
+        
+        rightView.frame = CGRect(x: frameWidth/2,
+                                    y: 0,
+                                    width: frameWidth/2,
+                                    height: frameHeight)
+        rightView.backgroundColor = UIColor.darkBackground
+        
+        
+        
+        speechLabel.frame = CGRect(x: frameWidth/2, y: frameHeight/2, width: 1, height: 1)
+        speechLabel.textAlignment = .center
+        speechLabel.text = "SPEECH"
+        
+        skipButton.frame = CGRect(x: frameWidth/2-25, y: frameHeight, width: 50, height: 30)
+        skipButton.setTitle("skip", for: .normal)
+        skipButton.contentHorizontalAlignment = .center
+        skipButton.addTarget(self, action: #selector(skipScene), for: .touchUpInside)
+        
+        self.view!.addSubview(leftView)
+        self.view!.addSubview(rightView)
+        self.view!.addSubview(skipButton)
+        self.view!.addSubview(speechLabel)
+        
+        UIView.animate(withDuration: 2.0, animations: {
+            self.leftView.frame = CGRect(x: 0, y: 0, width: 0, height: frameHeight)
+            self.rightView.frame = CGRect(x: frameWidth, y: 0, width: 0, height: frameHeight)
+            self.speechLabel.frame = CGRect(origin: self.speechLabel.frame.origin, size: CGSize(width: 400, height: 30))
+            self.skipButton.frame = CGRect(origin: CGPoint(x: frameWidth/2 - 25, y: frameHeight - 50), size: self.skipButton.frame.size)
+
+        }) { (_) in
+            self.leftView.removeFromSuperview()
+            self.rightView.removeFromSuperview()
+            self.startIntroduction()
+        }
+    }
+    
+    private func startIntroduction() {
+        let speechSynthesizer = AVSpeechSynthesizer()
+        let attributedString = NSAttributedString(string: "This is a piano scene")
+        let speechUtterance = AVSpeechUtterance(attributedString: attributedString)
+        speechSynthesizer.speak(speechUtterance)
+    }
+    
+    @objc private func skipScene() {
+        let horizontalTransition = SKTransition.push(with: .down, duration: 1.0)
+        let scene = PianoScene(size: self.view!.frame.size)
+        UIView.animate(withDuration: 0.5, animations: {
+            self.skipButton.alpha = 0.0
+            self.speechLabel.alpha = 0.0
+        }) { (_) in
+            self.view?.presentScene(scene, transition: horizontalTransition)
+            self.skipButton.removeFromSuperview()
+            self.speechLabel.removeFromSuperview()
+        }
+    }
+}
+
 public class PianoKey: SKShapeNode {
     public var keyColor: UIColor! {
         return UIColor.white
@@ -512,14 +553,16 @@ extension UIColor {
     static var blackKeyPressed = UIColor(red: 43/255.0, green: 43/255.0, blue: 43/255.0, alpha: 1.0)
     static var switchControl = UIColor(red: 167/255.0, green: 239/255.0, blue: 139/255.0, alpha: 1.0)
     static var background = UIColor(red: 82/255.0, green: 177/255.0, blue: 90/255.0, alpha: 1.0)
+    static var darkBackground = UIColor(red: 59/255.0, green: 63/255.0, blue: 66/255.0, alpha: 1.0)
     static var heartPink = UIColor(red: 155/255.0, green: 80/255.0, blue: 166/255.0, alpha: 1.0)
     static var jingleBells = UIColor(red: 25/255.0, green: 42/255.0, blue: 95/255.0, alpha: 1.0)
 }
 
-let pianoScene = PianoScene(size: CGSize(width: 600.0, height: 350.0))
+//let pianoScene = PianoScene(size: CGSize(width: 600.0, height: 350.0))
+let welcomeScene = WelcomeScene(size: CGSize(width: 600.0, height: 350.0))
 let view = SKView(frame: CGRect(x: 0, y: 100, width: 600.0, height: 350.0))
 
-view.presentScene(pianoScene)
+view.presentScene(welcomeScene)
 PlaygroundPage.current.liveView = view
 PlaygroundPage.current.needsIndefiniteExecution = true
 
