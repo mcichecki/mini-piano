@@ -1,5 +1,3 @@
-//: A UIKit based Playground for presenting user interface
-
 import UIKit
 import PlaygroundSupport
 import SpriteKit
@@ -31,7 +29,7 @@ public class PianoScene: SKScene {
     
     private var isHeartAndSoulPlaying: Bool = false {
         willSet {
-            playHeartAndSoulButton.setTitle(newValue ? "◼︎ stop Heart and Sould": "▶ play Heart and Soul",
+            playHeartAndSoulButton.setTitle(newValue ? "◼︎ stop Heart and Sould ❤️": "▶ play Heart and Soul ❤️",
                                             for: .normal)
             widthSwitch.isEnabled = !newValue
             heightSwitch.isEnabled = !newValue
@@ -41,7 +39,7 @@ public class PianoScene: SKScene {
     
     private var isJingleBellsPlaying: Bool = false {
         willSet {
-            playJingleBellsButton.setTitle(newValue ? "◼︎ stop Jingle Bells": "▶ play Jingle Bells",
+            playJingleBellsButton.setTitle(newValue ? "◼︎ stop Jingle Bells 🎄": "▶ play Jingle Bells 🎄",
                                            for: .normal)
             self.backgroundColor = newValue ? UIColor.jingleBells : UIColor.background
             if snowEmitter != nil && !newValue {
@@ -134,21 +132,27 @@ public class PianoScene: SKScene {
     private func setupUIComponents() {
         playHeartAndSoulButton.addTarget(self, action: #selector(playHeartAndSoul(sender:)),
                                          for: .touchUpInside)
-        playHeartAndSoulButton.frame = CGRect(x: 10, y: view!.frame.height - 40, width: 200, height: 40)
+        playHeartAndSoulButton.frame = CGRect(x: 10, y: view!.frame.height - 40, width: 240, height: 40)
         playHeartAndSoulButton.contentHorizontalAlignment = .left
-        playHeartAndSoulButton.setTitle("▶ play Heart and Soul", for: .normal)
+        playHeartAndSoulButton.setTitle("▶ play Heart and Soul ❤️", for: .normal)
         playHeartAndSoulButton.setTitleColor(UIColor.white, for: .normal)
         playHeartAndSoulButton.tag = Song.heartAndSoul.rawValue
         self.view!.addSubview(playHeartAndSoulButton)
         
         playJingleBellsButton.addTarget(self, action: #selector(playJingleBells(sender:)),
                                         for: .touchUpInside)
-        playJingleBellsButton.frame = CGRect(x: 10, y: view!.frame.height - 70, width: 200, height: 40)
+        playJingleBellsButton.frame = CGRect(x: 10, y: view!.frame.height - 70, width: 240, height: 40)
         playJingleBellsButton.contentHorizontalAlignment = .left
-        playJingleBellsButton.setTitle("▶ play Jingle Bells", for: .normal)
+        playJingleBellsButton.setTitle("▶ play Jingle Bells 🎄", for: .normal)
         playJingleBellsButton.setTitleColor(UIColor.white, for: .normal)
         playJingleBellsButton.tag = Song.jingleBells.rawValue
         self.view!.addSubview(playJingleBellsButton)
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, options: [.repeat, .autoreverse, .allowUserInteraction], animations: {
+            let scaleTransform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+            self.playJingleBellsButton.transform = scaleTransform
+            self.playHeartAndSoulButton.transform = scaleTransform
+        }, completion: nil)
         
         widthSwitch.addTarget(self,
                               action: #selector(widthValueChanged(widthSwitch:)),
@@ -262,7 +266,7 @@ public class PianoScene: SKScene {
                         self.generateEmitter(position: CGPoint(x: pianoKey.frame.midX,
                                                                y: pianoKey.frame.maxY))
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
                         pianoKey.handleEndOfTouch()
                     })
                 }
@@ -329,7 +333,7 @@ public class PianoScene: SKScene {
 
 public class WelcomeScene: SKScene {
     
-    var speechSynthesizer: Speaker!
+    var speechSynthesizer: SpeechSynthesizer!
     
     private var sentences: [String] = []
     
@@ -353,29 +357,26 @@ public class WelcomeScene: SKScene {
                                     width: frameWidth/2,
                                     height: frameHeight)
         leftView.backgroundColor = UIColor.darkBackground
+        self.view!.addSubview(leftView)
         
         rightView.frame = CGRect(x: frameWidth/2,
                                     y: 0,
                                     width: frameWidth/2,
                                     height: frameHeight)
         rightView.backgroundColor = UIColor.darkBackground
-        
-        
+        self.view!.addSubview(rightView)
         
         speechLabel.frame = CGRect(x: frameWidth/2 - 200, y: frameHeight/2, width: 400, height: 40)
         speechLabel.textAlignment = .center
         speechLabel.font = speechLabel.font.withSize(26.0)
         speechLabel.textColor = UIColor.white
+        self.view!.addSubview(speechLabel)
         
         skipButton.frame = CGRect(x: frameWidth/2-25, y: frameHeight, width: 50, height: 30)
         skipButton.setTitle("skip", for: .normal)
         skipButton.contentHorizontalAlignment = .center
         skipButton.addTarget(self, action: #selector(skipScene), for: .touchUpInside)
-        
-        self.view!.addSubview(leftView)
-        self.view!.addSubview(rightView)
         self.view!.addSubview(skipButton)
-        self.view!.addSubview(speechLabel)
         
         UIView.animate(withDuration: 2.0, animations: {
             self.leftView.frame = CGRect(x: 0, y: 0, width: 0, height: frameHeight)
@@ -392,19 +393,19 @@ public class WelcomeScene: SKScene {
     private func startIntroduction() {
         sentences = [
             "Hello 🖐",
-            "I would like to present a...",
-            "mini Piano 🎹",
+            "I would like to present ",
+            "a mini Piano 🎹",
             "Piano is a powerful instrument",
             "With only two octaves 🎼",
             "you can play many songs 🎶",
-            "Today you will be able",
-            "to see how to play",
-            "Heart and Soul",
-            "and Jingle Bells",
+            "Today you will play by yourself",
+            "and see how to play",
+            "Heart and Soul 💛",
+            "and Jingle Bells 🎄",
             "Let's go!"
         ]
         
-        speechSynthesizer = Speaker(sentences)
+        speechSynthesizer = SpeechSynthesizer(sentences)
         speechSynthesizer.delegate = self
         speechSynthesizer.speak()
     }
@@ -412,7 +413,6 @@ public class WelcomeScene: SKScene {
     @objc private func skipScene() {
         let horizontalTransition = SKTransition.push(with: .down, duration: 1.0)
         let scene = PianoScene(size: self.view!.frame.size)
-        speechSynthesizer = nil
         UIView.animate(withDuration: 0.5, animations: {
             self.skipButton.alpha = 0.0
             self.speechLabel.alpha = 0.0
@@ -420,11 +420,13 @@ public class WelcomeScene: SKScene {
             self.view?.presentScene(scene, transition: horizontalTransition)
             self.skipButton.removeFromSuperview()
             self.speechLabel.removeFromSuperview()
+            self.speechSynthesizer.stop()
+            self.speechSynthesizer = nil
         }
     }
 }
 
-extension WelcomeScene: SpeakerDelegate {
+extension WelcomeScene: SpeechSynthesizerDelegate {
     func changeLabel(i: Int) {
         if i == sentences.count - 1 {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
@@ -435,27 +437,22 @@ extension WelcomeScene: SpeakerDelegate {
     }
 }
 
-protocol SpeakerDelegate: class {
+protocol SpeechSynthesizerDelegate: class {
     func changeLabel(i: Int)
 }
 
-class Speaker: NSObject, AVSpeechSynthesizerDelegate {
+class SpeechSynthesizer: NSObject {
     
     private let synth = AVSpeechSynthesizer()
     private var i: Int = 0
     private var sentences: [String] = []
-    weak var delegate: SpeakerDelegate?
+    weak var delegate: SpeechSynthesizerDelegate?
     
     init(_ sentences: [String]) {
         super.init()
         self.sentences = sentences
         synth.delegate = self
     }
-    
-//    override init() {
-//        super.init()
-//        synth.delegate = self
-//    }
     
     func setupSentences(_ sentences: [String]) {
         self.sentences = sentences
@@ -466,7 +463,7 @@ class Speaker: NSObject, AVSpeechSynthesizerDelegate {
             return
         }
         
-        let trimmedSentence = sentences[i].trimmingCharacters(in: CharacterSet.letters.inverted)
+        let trimmedSentence = sentences[i].trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         
         let utterance = AVSpeechUtterance(string: trimmedSentence)
         utterance.rate = 0.4
@@ -474,6 +471,12 @@ class Speaker: NSObject, AVSpeechSynthesizerDelegate {
         synth.speak(utterance)
     }
     
+    func stop() {
+        self.sentences = []
+    }
+}
+
+extension SpeechSynthesizer: AVSpeechSynthesizerDelegate {
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         delegate?.changeLabel(i: i)
         i += 1
@@ -631,7 +634,6 @@ extension UIColor {
     static var jingleBells = UIColor(red: 25/255.0, green: 42/255.0, blue: 95/255.0, alpha: 1.0)
 }
 
-//let pianoScene = PianoScene(size: CGSize(width: 600.0, height: 350.0))
 let welcomeScene = WelcomeScene(size: CGSize(width: 600.0, height: 350.0))
 let view = SKView(frame: CGRect(x: 0, y: 100, width: 600.0, height: 350.0))
 
