@@ -327,11 +327,11 @@ public class PianoScene: SKScene {
     }
 }
 
-// # #  # ###  3
-// ## ##  ###
 public class WelcomeScene: SKScene {
     
-    let speechSynthesizer = AVSpeechSynthesizer()
+    var speechSynthesizer: Speaker = Speaker()
+    
+    private var sentences: [String] = []
     
     private let leftView: UIView = UIView(frame: CGRect.zero)
     private let rightView: UIView = UIView(frame: CGRect.zero)
@@ -341,7 +341,7 @@ public class WelcomeScene: SKScene {
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
         self.backgroundColor = UIColor.background
-
+        speechSynthesizer.delegate = self
         setupWelcomeScene()
     }
     
@@ -363,9 +363,10 @@ public class WelcomeScene: SKScene {
         
         
         
-        speechLabel.frame = CGRect(x: frameWidth/2, y: frameHeight/2, width: 1, height: 1)
+        speechLabel.frame = CGRect(x: frameWidth/2 - 200, y: frameHeight/2, width: 400, height: 40)
         speechLabel.textAlignment = .center
-        speechLabel.text = "SPEECH"
+        speechLabel.font = speechLabel.font.withSize(26.0)
+        speechLabel.textColor = UIColor.white
         
         skipButton.frame = CGRect(x: frameWidth/2-25, y: frameHeight, width: 50, height: 30)
         skipButton.setTitle("skip", for: .normal)
@@ -380,7 +381,6 @@ public class WelcomeScene: SKScene {
         UIView.animate(withDuration: 2.0, animations: {
             self.leftView.frame = CGRect(x: 0, y: 0, width: 0, height: frameHeight)
             self.rightView.frame = CGRect(x: frameWidth, y: 0, width: 0, height: frameHeight)
-            self.speechLabel.frame = CGRect(origin: self.speechLabel.frame.origin, size: CGSize(width: 400, height: 30))
             self.skipButton.frame = CGRect(origin: CGPoint(x: frameWidth/2 - 25, y: frameHeight - 50), size: self.skipButton.frame.size)
 
         }) { (_) in
@@ -391,10 +391,12 @@ public class WelcomeScene: SKScene {
     }
     
     private func startIntroduction() {
-        let speechSynthesizer = AVSpeechSynthesizer()
-        let attributedString = NSAttributedString(string: "This is a piano scene")
-        let speechUtterance = AVSpeechUtterance(attributedString: attributedString)
-        speechSynthesizer.speak(speechUtterance)
+        sentences = ["Hello 🖐",
+                     "Today I would like to present a mini Piano",
+        "Piano is a powerful instrument which"
+        ]
+        speechSynthesizer.setupSentences(sentences)
+        speechSynthesizer.speak()
     }
     
     @objc private func skipScene() {
@@ -408,6 +410,58 @@ public class WelcomeScene: SKScene {
             self.skipButton.removeFromSuperview()
             self.speechLabel.removeFromSuperview()
         }
+    }
+}
+
+extension WelcomeScene: SpeakerDelegate {
+    func changeLabel(i: Int) {
+        guard i < sentences.count else {
+            return
+        }
+        speechLabel.text = sentences[i]
+    }
+}
+
+protocol SpeakerDelegate: class {
+    func changeLabel(i: Int)
+}
+
+class Speaker: NSObject, AVSpeechSynthesizerDelegate {
+    
+    private let synth = AVSpeechSynthesizer()
+    private var i: Int = 0
+    private var sentences: [String] = []
+    weak var delegate: SpeakerDelegate?
+    
+    override init() {
+        super.init()
+        synth.delegate = self
+    }
+    
+    func setupSentences(_ sentences: [String]) {
+        self.sentences = sentences
+    }
+    
+    func speak() {
+        guard i < sentences.count else {
+            return
+        }
+        
+        let trimmedSentence = sentences[i].trimmingCharacters(in: CharacterSet.letters.inverted)
+        
+        let utterance = AVSpeechUtterance(string: trimmedSentence)
+        utterance.rate = 0.4
+        utterance.pitchMultiplier = 1.2
+        synth.speak(utterance)
+    }
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+        delegate?.changeLabel(i: i)
+    }
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        i += 1
+        speak()
     }
 }
 
