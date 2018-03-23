@@ -329,7 +329,7 @@ public class PianoScene: SKScene {
 
 public class WelcomeScene: SKScene {
     
-    var speechSynthesizer: Speaker = Speaker()
+    var speechSynthesizer: Speaker!
     
     private var sentences: [String] = []
     
@@ -341,7 +341,6 @@ public class WelcomeScene: SKScene {
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
         self.backgroundColor = UIColor.background
-        speechSynthesizer.delegate = self
         setupWelcomeScene()
     }
     
@@ -391,17 +390,29 @@ public class WelcomeScene: SKScene {
     }
     
     private func startIntroduction() {
-        sentences = ["Hello 🖐",
-                     "Today I would like to present a mini Piano",
-        "Piano is a powerful instrument which"
+        sentences = [
+            "Hello 🖐",
+            "I would like to present a...",
+            "mini Piano 🎹",
+            "Piano is a powerful instrument",
+            "With only two octaves 🎼",
+            "you can play many songs 🎶",
+            "Today you will be able",
+            "to see how to play",
+            "Heart and Soul",
+            "and Jingle Bells",
+            "Let's go!"
         ]
-        speechSynthesizer.setupSentences(sentences)
+        
+        speechSynthesizer = Speaker(sentences)
+        speechSynthesizer.delegate = self
         speechSynthesizer.speak()
     }
     
     @objc private func skipScene() {
         let horizontalTransition = SKTransition.push(with: .down, duration: 1.0)
         let scene = PianoScene(size: self.view!.frame.size)
+        speechSynthesizer = nil
         UIView.animate(withDuration: 0.5, animations: {
             self.skipButton.alpha = 0.0
             self.speechLabel.alpha = 0.0
@@ -415,8 +426,10 @@ public class WelcomeScene: SKScene {
 
 extension WelcomeScene: SpeakerDelegate {
     func changeLabel(i: Int) {
-        guard i < sentences.count else {
-            return
+        if i == sentences.count - 1 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
+                self.skipScene()
+            })
         }
         speechLabel.text = sentences[i]
     }
@@ -433,10 +446,16 @@ class Speaker: NSObject, AVSpeechSynthesizerDelegate {
     private var sentences: [String] = []
     weak var delegate: SpeakerDelegate?
     
-    override init() {
+    init(_ sentences: [String]) {
         super.init()
+        self.sentences = sentences
         synth.delegate = self
     }
+    
+//    override init() {
+//        super.init()
+//        synth.delegate = self
+//    }
     
     func setupSentences(_ sentences: [String]) {
         self.sentences = sentences
@@ -457,10 +476,10 @@ class Speaker: NSObject, AVSpeechSynthesizerDelegate {
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         delegate?.changeLabel(i: i)
+        i += 1
     }
     
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        i += 1
         speak()
     }
 }
@@ -621,4 +640,7 @@ PlaygroundPage.current.liveView = view
 PlaygroundPage.current.needsIndefiniteExecution = true
 
 //Piano is a powerful instrument. With only two octaves you can play popular songs, so let's see how
+// NSSpeachRecognizer
+
+
 
