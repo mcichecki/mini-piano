@@ -400,7 +400,6 @@ public class WelcomeScene: SKScene {
             self.speechLabel.alpha = 0.0
         }) { (_) in
             self.view?.presentScene(scene, transition: horizontalTransition)
-            self.skipButton.removeFromSuperview()
             self.speechLabel.removeFromSuperview()
             self.speechSynthesizer.stop()
             self.speechSynthesizer = nil
@@ -411,6 +410,7 @@ public class WelcomeScene: SKScene {
 extension WelcomeScene: SpeechSynthesizerDelegate {
     func changeLabel(i: Int) {
         if i == sentences.count - 1 {
+            skipButton.removeFromSuperview()
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
                 self.skipScene()
             })
