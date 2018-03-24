@@ -31,8 +31,8 @@ public class PianoScene: SKScene {
         willSet {
             playHeartAndSoulButton.setTitle(newValue ? "◼︎ stop Heart and Sould ❤️": "▶ play Heart and Soul ❤️",
                                             for: .normal)
-            widthSwitch.isEnabled = !newValue
-            heightSwitch.isEnabled = !newValue
+            widthButton.isEnabled = !newValue
+            heightButton.isEnabled = !newValue
             self.backgroundColor = newValue ? UIColor.heartPink : UIColor.background
         }
     }
@@ -46,16 +46,18 @@ public class PianoScene: SKScene {
                 snowEmitter!.particleLifetime = 0.0
                 snowEmitter!.removeFromParent()
             }
+            widthButton.isEnabled = !newValue
+            heightButton.isEnabled = !newValue
         }
     }
     
     // UI
     private var playHeartAndSoulButton = UIButton(frame: CGRect())
     private var playJingleBellsButton = UIButton(frame: CGRect())
-    private var widthSwitch = UISwitch(frame: CGRect())
-    private var heightSwitch = UISwitch(frame: CGRect())
     private var widthLabel = UILabel(frame: CGRect())
     private var heightLabel = UILabel(frame: CGRect())
+    private var widthButton: ConfirmButton!
+    private var heightButton: ConfirmButton!
     
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
@@ -73,7 +75,7 @@ public class PianoScene: SKScene {
         
         for (index, whiteNote) in whiteNotes.enumerated() {
             let position = CGPoint(x: startingPoint + CGFloat(index) * (WhitePianoKey.width + 1.0),
-                                   y: 80)
+                                   y: 100)
             let whitePianoKey = WhitePianoKey(note: whiteNote,
                                               position: position,
                                               sound: noteSounds[whiteNote.rawValue]!)
@@ -141,7 +143,7 @@ public class PianoScene: SKScene {
         
         playJingleBellsButton.addTarget(self, action: #selector(playJingleBells(sender:)),
                                         for: .touchUpInside)
-        playJingleBellsButton.frame = CGRect(x: 10, y: view!.frame.height - 70, width: 240, height: 40)
+        playJingleBellsButton.frame = CGRect(x: 10, y: view!.frame.height - 80, width: 240, height: 40)
         playJingleBellsButton.contentHorizontalAlignment = .left
         playJingleBellsButton.setTitle("▶ play Jingle Bells 🎄", for: .normal)
         playJingleBellsButton.setTitleColor(UIColor.white, for: .normal)
@@ -154,46 +156,49 @@ public class PianoScene: SKScene {
             self.playHeartAndSoulButton.transform = scaleTransform
         }, completion: nil)
         
-        widthSwitch.addTarget(self,
-                              action: #selector(widthValueChanged(widthSwitch:)),
-                              for: .valueChanged)
-        widthSwitch.frame = CGRect(x: self.frame.width - 55,
-                                   y: 0,
-                                   width: 40,
-                                   height: 0)
-        widthSwitch.center.y = playHeartAndSoulButton.center.y
-        widthSwitch.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
-        widthSwitch.onTintColor = UIColor.switchControl
-        self.view!.addSubview(widthSwitch)
+        widthButton = ConfirmButton(handleClick: {
+            if self.widthButton.isClicked {
+                WhitePianoKey.width = 40.0
+                BlackPianoKey.width = 28.0
+            } else {
+                WhitePianoKey.width = 32.0
+                BlackPianoKey.width = 20.0
+            }
+            self.removeAllChildren()
+            self.setupKeys()
+        })
+        widthButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: 0)
+        widthButton.center.y = playJingleBellsButton.center.y
+        self.view!.addSubview(widthButton)
         
-        heightSwitch.addTarget(self,
-                               action: #selector(heightValueChanged(heightSwitch:)),
-                               for: .valueChanged)
-        heightSwitch.center.x = widthSwitch.center.x
-        heightSwitch.center.y = playJingleBellsButton.center.y
-        heightSwitch.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
-        heightSwitch.onTintColor = UIColor.switchControl
-        self.view!.addSubview(heightSwitch)
-        
-        widthLabel.frame = CGRect(x: widthSwitch.frame.minX - 150,
-                                  y: 0,
-                                  width: 140,
-                                  height: 30)
-        widthLabel.center.y = widthSwitch.center.y
+        widthLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
+        widthLabel.center.y = widthButton.center.y
         widthLabel.text = "increase width"
         widthLabel.textColor = UIColor.white
         widthLabel.textAlignment = .right
-        self.view?.addSubview(widthLabel)
+        self.view!.addSubview(widthLabel)
         
-        heightLabel.frame = CGRect(x: heightSwitch.frame.minX - 150,
-                                   y: 0,
-                                   width: 140,
-                                   height: 30)
-        heightLabel.center.y = heightSwitch.center.y
-        heightLabel.textColor = UIColor.white
+        heightButton = ConfirmButton(handleClick: {
+            if self.heightButton.isClicked {
+                WhitePianoKey.height = 156.0
+                BlackPianoKey.height = 92.0
+            } else {
+                WhitePianoKey.height = 110.0
+                BlackPianoKey.height = 60.0
+            }
+            self.removeAllChildren()
+            self.setupKeys()
+        })
+        heightButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: 0)
+        heightButton.center.y = playHeartAndSoulButton.center.y
+        heightLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
+        heightLabel.center.y = heightButton.center.y
         heightLabel.text = "increase height"
+        heightLabel.textColor = UIColor.white
         heightLabel.textAlignment = .right
-        self.view?.addSubview(heightLabel)
+        self.view!.addSubview(heightLabel)
+        
+        self.view!.addSubview(heightButton)
     }
     
     @objc private func playHeartAndSoul(sender: UIButton) {
@@ -287,39 +292,14 @@ public class PianoScene: SKScene {
         setupKeys()
     }
     
-    @objc private func widthValueChanged(widthSwitch: UISwitch) {
-        if widthSwitch.isOn {
-            WhitePianoKey.width = 40.0
-            BlackPianoKey.width = 28.0
-        } else {
-            WhitePianoKey.width = 32.0
-            BlackPianoKey.width = 20.0
-        }
-        removeAllChildren()
-        setupKeys()
-    }
-    
-    @objc private func heightValueChanged(heightSwitch: UISwitch) {
-        if heightSwitch.isOn {
-            WhitePianoKey.height = 156.0
-            BlackPianoKey.height = 92.0
-        } else {
-            WhitePianoKey.height = 110.0
-            BlackPianoKey.height = 60.0
-        }
-        removeAllChildren()
-        setupKeys()
-    }
-    
     private func generateEmitter(position: CGPoint) {
         let emitter = SKEmitterNode(fileNamed: "HeartParticle")!
-        emitter.particleBirthRate = 10.0
         emitter.numParticlesToEmit = 7
         emitter.position = position
         emitter.zPosition = -1.0
         
-        let moveAction = SKAction.move(by: CGVector.init(dx: 0, dy: 100.0), duration: 1.0)
-        let actionSequence = [moveAction, SKAction.removeFromParent()]
+        let fadeAction = SKAction.fadeAlpha(to: 0, duration: 1.0)
+        let actionSequence = [fadeAction, SKAction.removeFromParent()]
         emitter.run(SKAction.sequence(actionSequence))
         self.addChild(emitter)
     }
@@ -366,7 +346,8 @@ public class WelcomeScene: SKScene {
         rightView.backgroundColor = UIColor.darkBackground
         self.view!.addSubview(rightView)
         
-        speechLabel.frame = CGRect(x: frameWidth/2 - 200, y: frameHeight/2, width: 400, height: 40)
+        speechLabel.frame = CGRect(x: 0, y: 100, width: 400, height: 40)
+        speechLabel.center.x = self.view!.center.x
         speechLabel.textAlignment = .center
         speechLabel.font = speechLabel.font.withSize(26.0)
         speechLabel.textColor = UIColor.white
@@ -376,6 +357,7 @@ public class WelcomeScene: SKScene {
         skipButton.setTitle("skip", for: .normal)
         skipButton.contentHorizontalAlignment = .center
         skipButton.addTarget(self, action: #selector(skipScene), for: .touchUpInside)
+        skipButton.isEnabled = false
         self.view!.addSubview(skipButton)
         
         UIView.animate(withDuration: 2.0, animations: {
@@ -433,6 +415,7 @@ extension WelcomeScene: SpeechSynthesizerDelegate {
                 self.skipScene()
             })
         }
+        skipButton.isEnabled = true
         speechLabel.text = sentences[i]
     }
 }
@@ -443,7 +426,7 @@ protocol SpeechSynthesizerDelegate: class {
 
 class SpeechSynthesizer: NSObject {
     
-    private let synth = AVSpeechSynthesizer()
+    private let synthesizer = AVSpeechSynthesizer()
     private var i: Int = 0
     private var sentences: [String] = []
     weak var delegate: SpeechSynthesizerDelegate?
@@ -451,7 +434,7 @@ class SpeechSynthesizer: NSObject {
     init(_ sentences: [String]) {
         super.init()
         self.sentences = sentences
-        synth.delegate = self
+        synthesizer.delegate = self
     }
     
     func setupSentences(_ sentences: [String]) {
@@ -468,17 +451,20 @@ class SpeechSynthesizer: NSObject {
         let utterance = AVSpeechUtterance(string: trimmedSentence)
         utterance.rate = 0.4
         utterance.pitchMultiplier = 1.2
-        synth.speak(utterance)
+        synthesizer.speak(utterance)
     }
     
     func stop() {
+        synthesizer.stopSpeaking(at: .immediate)
         self.sentences = []
     }
 }
 
 extension SpeechSynthesizer: AVSpeechSynthesizerDelegate {
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
-        delegate?.changeLabel(i: i)
+        if let delegate = delegate {
+            delegate.changeLabel(i: i)
+        }
         i += 1
     }
     
@@ -556,7 +542,6 @@ public class PianoKey: SKShapeNode {
         noteLabel.fontSize = 24.0
         noteLabel.fontColor = UIColor.white
         noteLabel.zPosition = -1.0
-        noteLabel.name = "note"
         
         let actionGroup = SKAction.group([moveUpAction, increaseSizeAction, fadeAction])
         
@@ -632,17 +617,56 @@ extension UIColor {
     static var darkBackground = UIColor(red: 59/255.0, green: 63/255.0, blue: 66/255.0, alpha: 1.0)
     static var heartPink = UIColor(red: 155/255.0, green: 80/255.0, blue: 166/255.0, alpha: 1.0)
     static var jingleBells = UIColor(red: 25/255.0, green: 42/255.0, blue: 95/255.0, alpha: 1.0)
+    static var button = UIColor(red: 202/255.0, green: 50/255.0, blue: 65/255.0, alpha: 1.0)
 }
 
-let welcomeScene = WelcomeScene(size: CGSize(width: 600.0, height: 350.0))
-let view = SKView(frame: CGRect(x: 0, y: 100, width: 600.0, height: 350.0))
+public class ConfirmButton: UIButton {
+    
+    var isClicked = false
+    private var handleClick: () -> ()!
+    
+    public init(handleClick: @escaping () -> ()) {
+        self.handleClick = handleClick
+        super.init(frame: CGRect.zero)
+        setupButton()
+    }
+    
+    required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupButton() {
+        self.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        self.layer.cornerRadius = 0.5 * self.frame.height
+        self.clipsToBounds = true
+        self.layer.borderWidth = 2.5
+        self.layer.borderColor = UIColor.white.cgColor
+        self.backgroundColor = UIColor.button
+        self.setTitle("X", for: .normal)
+        if let fontLabel = self.titleLabel?.font {
+            self.titleLabel!.font = fontLabel.withSize(26.0)
+        }
+    }
+    
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        isClicked = !isClicked
+        self.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+        self.backgroundColor = UIColor.button.withAlphaComponent(0.5)
+    }
+    
+    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+        self.backgroundColor = UIColor.button.withAlphaComponent(isClicked ? 0.05 : 1.0)
+        self.setTitle(isClicked ? "✓" : "X", for: .normal)
+        handleClick()
+    }
+}
+
+let sceneSize = CGSize(width: 600.0, height: 350.0)
+let view = SKView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: sceneSize))
+let welcomeScene = WelcomeScene(size: sceneSize)
 
 view.presentScene(welcomeScene)
 PlaygroundPage.current.liveView = view
 PlaygroundPage.current.needsIndefiniteExecution = true
-
-//Piano is a powerful instrument. With only two octaves you can play popular songs, so let's see how
-// NSSpeachRecognizer
-
-
 
