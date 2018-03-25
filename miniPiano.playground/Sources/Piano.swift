@@ -171,7 +171,7 @@ public class Piano: SKShapeNode {
     
     private func generateSnow() {
         snowEmitter = SKEmitterNode(fileNamed: "SnowParticle")!
-        snowEmitter?.position = CGPoint(x: 0, y: 400)
+        snowEmitter?.position = CGPoint(x: 300, y: 400)
         self.addChild(snowEmitter!)
     }
 }
