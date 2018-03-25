@@ -6,7 +6,6 @@ extension UIColor {
     static var whiteKeyPressed = UIColor(red: 226/255.0, green: 226/255.0, blue: 226/255.0, alpha: 1.0)
     static var blackKey = UIColor(red: 3/255.0, green: 3/255.0, blue: 3/255.0, alpha: 1.0)
     static var blackKeyPressed = UIColor(red: 43/255.0, green: 43/255.0, blue: 43/255.0, alpha: 1.0)
-    static var switchControl = UIColor(red: 167/255.0, green: 239/255.0, blue: 139/255.0, alpha: 1.0)
     static var background = UIColor(red: 82/255.0, green: 177/255.0, blue: 90/255.0, alpha: 1.0)
     static var darkBackground = UIColor(red: 59/255.0, green: 63/255.0, blue: 66/255.0, alpha: 1.0)
     static var heartPink = UIColor(red: 155/255.0, green: 80/255.0, blue: 166/255.0, alpha: 1.0)

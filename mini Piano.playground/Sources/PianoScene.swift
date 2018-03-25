@@ -171,7 +171,7 @@ extension PianoScene: PianoDelegate {
     
     public func setHeartAndSoul(value: Bool) {
         playHeartAndSoulButton.setTitle(value ?
-            "◼︎ stop Heart and Sould ❤️" :
+            "◼︎ stop Heart and Soul ❤️" :
             "▶ play Heart and Soul ❤️", for: .normal)
         widthButton.isEnabled = !value
         heightButton.isEnabled = !value
