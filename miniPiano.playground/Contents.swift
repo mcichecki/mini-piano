@@ -10,46 +10,8 @@ public enum Note: String {
 }
 
 public class PianoScene: SKScene {
-    
-    private enum Song: Int {
-        case heartAndSoul, jingleBells
-    }
-    
-    private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .B1,
-                                      .C2, .D2, .E2, .F2, .G2, .A2, .B2]
-    
-    private let blackNotes: [Note] = [.D1b, .E1b, .G1b, .A1b, .B1b,
-                                      .D2b, .E2b, .G2b, .A2b, .B2b]
-    
-    private var noteSounds: [String: AVAudioPlayer] = [:]
-    
-    private var timer: Timer?
-    
-    private var snowEmitter: SKEmitterNode?
-    
-    private var isHeartAndSoulPlaying: Bool = false {
-        willSet {
-            playHeartAndSoulButton.setTitle(newValue ? "◼︎ stop Heart and Sould ❤️": "▶ play Heart and Soul ❤️",
-                                            for: .normal)
-            widthButton.isEnabled = !newValue
-            heightButton.isEnabled = !newValue
-            self.backgroundColor = newValue ? UIColor.heartPink : UIColor.background
-        }
-    }
-    
-    private var isJingleBellsPlaying: Bool = false {
-        willSet {
-            playJingleBellsButton.setTitle(newValue ? "◼︎ stop Jingle Bells 🎄": "▶ play Jingle Bells 🎄",
-                                           for: .normal)
-            self.backgroundColor = newValue ? UIColor.jingleBells : UIColor.background
-            if snowEmitter != nil && !newValue {
-                snowEmitter!.particleLifetime = 0.0
-                snowEmitter!.removeFromParent()
-            }
-            widthButton.isEnabled = !newValue
-            heightButton.isEnabled = !newValue
-        }
-    }
+    private var timer: Timer!
+    private var piano: Piano!
     
     // UI
     private var playHeartAndSoulButton = UIButton(frame: CGRect())
@@ -62,73 +24,13 @@ public class PianoScene: SKScene {
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
         self.backgroundColor = UIColor.background
-        mapSounds()
-        setupKeys()
-        setupUIComponents()
-    }
-    
-    private func setupKeys() {
+
         let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
-        var endingPoint: CGFloat!
-        var topPoint: CGFloat!
-        var i = 0
-        
-        for (index, whiteNote) in whiteNotes.enumerated() {
-            let position = CGPoint(x: startingPoint + CGFloat(index) * (WhitePianoKey.width + 1.0),
-                                   y: 100)
-            let whitePianoKey = WhitePianoKey(note: whiteNote,
-                                              position: position,
-                                              sound: noteSounds[whiteNote.rawValue]!)
-            whitePianoKey.zPosition = 0.0
-            topPoint = whitePianoKey.frame.maxY
-            
-            if index == whiteNotes.count - 1 {
-                endingPoint = whitePianoKey.frame.maxX
-            }
-            
-            if index != 2 && index != 6 && index != 9 && index != 13 {
-                let blackPianoKey = BlackPianoKey(note: blackNotes[i],
-                                                  position: CGPoint.init(x: whitePianoKey.frame.maxX - BlackPianoKey.width/2,
-                                                                         y: topPoint - BlackPianoKey.height - 5.0),
-                                                  sound: noteSounds[blackNotes[i].rawValue]!)
-                blackPianoKey.zPosition = 1.0
-                self.addChild(blackPianoKey)
-                i += 1
-            }
-            
-            self.addChild(whitePianoKey)
-        }
-        setupPiano(CGRect(x: startingPoint - 1,
-                          y: topPoint - 20,
-                          width: endingPoint - startingPoint + 1,
-                          height: 20))
-    }
-    
-    private func setupPiano(_ rect: CGRect) {
-        let piano = SKShapeNode(rect: rect)
-        piano.fillColor = UIColor.piano
-        piano.strokeColor = UIColor.piano
-        piano.zPosition = 2.0
+        piano = Piano(timer: Timer())
+        piano.position = CGPoint(x: startingPoint, y: 0)
+        piano.delegate = self
         self.addChild(piano)
-    }
-    
-    private func mapSounds() {
-        for whiteNote in whiteNotes {
-            noteSounds[whiteNote.rawValue] = try! AVAudioPlayer(contentsOf: Bundle.main.url(forResource: whiteNote.rawValue,
-                                                                                            withExtension: "mp3",
-                                                                                            subdirectory: "sounds")!)
-        }
-        
-        for blackNote in blackNotes {
-            noteSounds[blackNote.rawValue] = try! AVAudioPlayer(contentsOf: Bundle.main.url(forResource: blackNote.rawValue,
-                                                                                            withExtension: "mp3",
-                                                                                            subdirectory: "sounds")!)
-        }
-        
-        for noteSound in noteSounds.values {
-            noteSound.volume = 0.4
-            noteSound.prepareToPlay()
-        }
+        setupUIComponents()
     }
     
     private func setupUIComponents() {
@@ -138,7 +40,7 @@ public class PianoScene: SKScene {
         playHeartAndSoulButton.contentHorizontalAlignment = .left
         playHeartAndSoulButton.setTitle("▶ play Heart and Soul ❤️", for: .normal)
         playHeartAndSoulButton.setTitleColor(UIColor.white, for: .normal)
-        playHeartAndSoulButton.tag = Song.heartAndSoul.rawValue
+        playHeartAndSoulButton.tag = Piano.Song.heartAndSoul.rawValue
         self.view!.addSubview(playHeartAndSoulButton)
         
         playJingleBellsButton.addTarget(self, action: #selector(playJingleBells(sender:)),
@@ -147,7 +49,7 @@ public class PianoScene: SKScene {
         playJingleBellsButton.contentHorizontalAlignment = .left
         playJingleBellsButton.setTitle("▶ play Jingle Bells 🎄", for: .normal)
         playJingleBellsButton.setTitleColor(UIColor.white, for: .normal)
-        playJingleBellsButton.tag = Song.jingleBells.rawValue
+        playJingleBellsButton.tag = Piano.Song.jingleBells.rawValue
         self.view!.addSubview(playJingleBellsButton)
         
         UIView.animate(withDuration: 0.5, delay: 0.0, options: [.repeat, .autoreverse, .allowUserInteraction], animations: {
@@ -164,8 +66,12 @@ public class PianoScene: SKScene {
                 WhitePianoKey.width = 32.0
                 BlackPianoKey.width = 20.0
             }
-            self.removeAllChildren()
-            self.setupKeys()
+            self.piano.removeFromParent()
+            self.piano.removeAllChildren()
+            let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
+            self.piano.position = CGPoint(x: startingPoint, y: 0)
+            self.piano.setupKeys()
+            self.addChild(self.piano)
         })
         widthButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: 0)
         widthButton.center.y = playJingleBellsButton.center.y
@@ -186,9 +92,14 @@ public class PianoScene: SKScene {
                 WhitePianoKey.height = 110.0
                 BlackPianoKey.height = 60.0
             }
-            self.removeAllChildren()
-            self.setupKeys()
+            self.piano.removeFromParent()
+            self.piano.removeAllChildren()
+            let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
+            self.piano.position = CGPoint(x: startingPoint, y: 0)
+            self.piano.setupKeys()
+            self.addChild(self.piano)
         })
+        
         heightButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: 0)
         heightButton.center.y = playHeartAndSoulButton.center.y
         heightLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
@@ -215,9 +126,9 @@ public class PianoScene: SKScene {
             .G2, .F2, .E2, .D2, .C2
         ]
         
-        playSong(with: heartAndSoulNotes,
+        piano.playSong(with: heartAndSoulNotes,
                  speed: 0.5,
-                 chosenSong: Song(rawValue: sender.tag)!)
+                 chosenSong: Piano.Song(rawValue: sender.tag)!)
     }
     
     @objc private func playJingleBells(sender: UIButton) {
@@ -239,74 +150,41 @@ public class PianoScene: SKScene {
             .G2, .G2, .F2, .D2, .C2
         ]
         
-        playSong(with: jingleBellsNotes,
+        piano.playSong(with: jingleBellsNotes,
                  speed: 0.35,
-                 chosenSong: Song(rawValue: sender.tag)!)
-    }
-    
-    private func playSong(with notes: [Note], speed: TimeInterval, chosenSong: Song) {
-        guard !(isHeartAndSoulPlaying || isJingleBellsPlaying) else {
-            timer?.invalidate()
-            timer = nil
-            isHeartAndSoulPlaying = false
-            isJingleBellsPlaying = false
-            return
-        }
-        
-        switch chosenSong {
-        case .heartAndSoul:
-            isHeartAndSoulPlaying = true
-        case .jingleBells:
-            isJingleBellsPlaying = true
-            generateSnow()
-        }
-        
-        var i = 0
-        timer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { (timer) in
-            if notes[i] != .pause {
-                if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
-                    pianoKey.handleTouch()
-                    if chosenSong == .heartAndSoul {
-                        self.generateEmitter(position: CGPoint(x: pianoKey.frame.midX,
-                                                               y: pianoKey.frame.maxY))
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
-                        pianoKey.handleEndOfTouch()
-                    })
-                }
-                
-                if i == notes.count - 1 {
-                    self.isHeartAndSoulPlaying = false
-                    self.isJingleBellsPlaying = false
-                    timer.invalidate()
-                }
-            }
-            i += 1
-        }
+                 chosenSong: Piano.Song(rawValue: sender.tag)!)
     }
     
     @objc private func sizePressed() {
         WhitePianoKey.width = 40
         removeAllChildren()
-        setupKeys()
+        piano.setupKeys()
+    }
+}
+
+extension PianoScene: PianoDelegate {
+    public func setJingleBells(value: Bool) {
+        playJingleBellsButton.setTitle(value ?
+            "◼︎ stop Jingle Bells 🎄" :
+            "▶ play Jingle Bells 🎄", for: .normal)
+        self.backgroundColor = value ? UIColor.jingleBells : UIColor.background
+        if piano.snowEmitter != nil && !value {
+            piano.snowEmitter!.particleLifetime = 0.0
+            piano.snowEmitter!.removeFromParent()
+        }
+        widthButton.isEnabled = !value
+        heightButton.isEnabled = !value
+        piano.isJingleBellsPlaying = value
     }
     
-    private func generateEmitter(position: CGPoint) {
-        let emitter = SKEmitterNode(fileNamed: "HeartParticle")!
-        emitter.numParticlesToEmit = 7
-        emitter.position = position
-        emitter.zPosition = -1.0
-        
-        let fadeAction = SKAction.fadeAlpha(to: 0, duration: 1.0)
-        let actionSequence = [fadeAction, SKAction.removeFromParent()]
-        emitter.run(SKAction.sequence(actionSequence))
-        self.addChild(emitter)
-    }
-    
-    private func generateSnow() {
-        snowEmitter = SKEmitterNode(fileNamed: "SnowParticle")!
-        snowEmitter!.position = CGPoint(x: self.view!.frame.width/2, y: self.frame.maxY)
-        self.addChild(snowEmitter!)
+    public func setHeartAndSoul(value: Bool) {
+        playHeartAndSoulButton.setTitle(value ?
+            "◼︎ stop Heart and Sould ❤️" :
+            "▶ play Heart and Soul ❤️", for: .normal)
+        widthButton.isEnabled = !value
+        heightButton.isEnabled = !value
+        self.backgroundColor = value ? UIColor.heartPink : UIColor.background
+        piano.isHeartAndSoulPlaying = value
     }
 }
 
@@ -606,6 +484,174 @@ public class BlackPianoKey: PianoKey {
     
     public override func handleEndOfTouch() {
         self.fillColor = UIColor.blackKey
+    }
+}
+
+public protocol PianoDelegate {
+    func setHeartAndSoul(value: Bool)
+    func setJingleBells(value: Bool)
+}
+
+public class Piano: SKShapeNode {
+    
+    public var delegate: PianoDelegate?
+    
+    public var isHeartAndSoulPlaying: Bool = false
+    
+    public var isJingleBellsPlaying: Bool = false
+    
+    private var timer: Timer?
+    
+    public enum Song: Int {
+        case heartAndSoul, jingleBells
+    }
+    
+    var snowEmitter: SKEmitterNode?
+    
+    private var noteSounds: [String: AVAudioPlayer] = [:]
+    
+    private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .B1,
+                                      .C2, .D2, .E2, .F2, .G2, .A2, .B2]
+    
+    private let blackNotes: [Note] = [.D1b, .E1b, .G1b, .A1b, .B1b,
+                                      .D2b, .E2b, .G2b, .A2b, .B2b]
+    
+    public init(timer: Timer) {
+        self.timer = timer
+        super.init()
+        mapSounds()
+        setupKeys()
+    }
+    
+    required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func setupKeys() {
+        var endingPoint: CGFloat!
+        var topPoint: CGFloat!
+        var i = 0
+        
+        for (index, whiteNote) in whiteNotes.enumerated() {
+            let position = CGPoint(x: 0 + CGFloat(index) * (WhitePianoKey.width + 1.0),
+                                   y: 100)
+            let whitePianoKey = WhitePianoKey(note: whiteNote,
+                                              position: position,
+                                              sound: noteSounds[whiteNote.rawValue]!)
+            whitePianoKey.zPosition = 0.0
+            topPoint = whitePianoKey.frame.maxY
+            
+            if index == whiteNotes.count - 1 {
+                endingPoint = whitePianoKey.frame.maxX
+            }
+            
+            if index != 2 && index != 6 && index != 9 && index != 13 {
+                let blackPianoKey = BlackPianoKey(note: blackNotes[i],
+                                                  position: CGPoint.init(x: whitePianoKey.frame.maxX - BlackPianoKey.width/2,
+                                                                         y: topPoint - BlackPianoKey.height - 5.0),
+                                                  sound: noteSounds[blackNotes[i].rawValue]!)
+                blackPianoKey.zPosition = 1.0
+                self.addChild(blackPianoKey)
+                i += 1
+            }
+            
+            self.addChild(whitePianoKey)
+        }
+        setupPiano(CGRect(x: 0 - 1,
+                          y: topPoint - 20,
+                          width: endingPoint - 0 + 1,
+                          height: 20))
+    }
+    
+    private func mapSounds() {
+        for whiteNote in whiteNotes {
+            noteSounds[whiteNote.rawValue] = try! AVAudioPlayer(contentsOf: Bundle.main.url(forResource: whiteNote.rawValue,
+                                                                                            withExtension: "mp3",
+                                                                                            subdirectory: "sounds")!)
+        }
+        
+        for blackNote in blackNotes {
+            noteSounds[blackNote.rawValue] = try! AVAudioPlayer(contentsOf: Bundle.main.url(forResource: blackNote.rawValue,
+                                                                                            withExtension: "mp3",
+                                                                                            subdirectory: "sounds")!)
+        }
+        
+        for noteSound in noteSounds.values {
+            noteSound.volume = 0.4
+            noteSound.prepareToPlay()
+        }
+    }
+    
+    private func setupPiano(_ rect: CGRect) {
+        let piano = SKShapeNode(rect: rect)
+        piano.fillColor = UIColor.piano
+        piano.strokeColor = UIColor.piano
+        piano.zPosition = 2.0
+        self.addChild(piano)
+    }
+    
+    public func playSong(with notes: [Note], speed: TimeInterval, chosenSong: Song) {
+        guard !(isHeartAndSoulPlaying || isJingleBellsPlaying) else {
+            timer?.invalidate()
+            timer = nil
+            if isHeartAndSoulPlaying {
+                delegate?.setHeartAndSoul(value: false)
+            }
+            
+            if isJingleBellsPlaying {
+                delegate?.setJingleBells(value: false)
+            }
+            return
+        }
+        
+        switch chosenSong {
+        case .heartAndSoul:
+            delegate?.setHeartAndSoul(value: true)
+        case .jingleBells:
+            delegate?.setJingleBells(value: true)
+            generateSnow()
+        }
+        
+        var i = 0
+        timer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { (timer) in
+            if notes[i] != .pause {
+                if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
+                    pianoKey.handleTouch()
+                    if chosenSong == .heartAndSoul {
+                        self.generateEmitter(position: CGPoint(x: pianoKey.frame.midX,
+                                                               y: pianoKey.frame.maxY))
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
+                        pianoKey.handleEndOfTouch()
+                    })
+                }
+                
+                if i == notes.count - 1 {
+                    self.delegate?.setHeartAndSoul(value: false)
+                    self.delegate?.setJingleBells(value: false)
+                    timer.invalidate()
+                }
+            }
+            i += 1
+        }
+    }
+    
+    private func generateEmitter(position: CGPoint) {
+        let emitter = SKEmitterNode(fileNamed: "HeartParticle")!
+        emitter.numParticlesToEmit = 7
+        emitter.position = position
+        emitter.zPosition = -1.0
+        
+        let fadeAction = SKAction.fadeAlpha(to: 0, duration: 1.0)
+        let actionSequence = [fadeAction, SKAction.removeFromParent()]
+        emitter.run(SKAction.sequence(actionSequence))
+        self.addChild(emitter)
+    }
+    
+    private func generateSnow() {
+        snowEmitter = SKEmitterNode(fileNamed: "SnowParticle")!
+        snowEmitter?.position = CGPoint(x: 0, y: 400)
+        self.addChild(snowEmitter!)
     }
 }
 
