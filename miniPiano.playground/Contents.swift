@@ -4,22 +4,22 @@ import SpriteKit
 import AVFoundation
 
 public enum Note: String {
-    case C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, H1, H1b,
-    C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, H2, H2b,
+    case C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, B1, B1b,
+    C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, B2, B2b,
     pause
-}
-
-public enum Song: Int {
-    case heartAndSoul, jingleBells
 }
 
 public class PianoScene: SKScene {
     
-    private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .H1,
-                                      .C2, .D2, .E2, .F2, .G2, .A2, .H2]
+    private enum Song: Int {
+        case heartAndSoul, jingleBells
+    }
     
-    private let blackNotes: [Note] = [.D1b, .E1b, .G1b, .A1b, .H1b,
-                                      .D2b, .E2b, .G2b, .A2b, .H2b]
+    private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .B1,
+                                      .C2, .D2, .E2, .F2, .G2, .A2, .B2]
+    
+    private let blackNotes: [Note] = [.D1b, .E1b, .G1b, .A1b, .B1b,
+                                      .D2b, .E2b, .G2b, .A2b, .B2b]
     
     private var noteSounds: [String: AVAudioPlayer] = [:]
     
@@ -206,9 +206,9 @@ public class PianoScene: SKScene {
             .C2, .C2, .E2, .G2,
             .A1, .A1, .C2, .E2,
             .F1, .F1, .A1, .C2,
-            .G1, .G1, .H1, .D2, .pause,
+            .G1, .G1, .B1, .D2, .pause,
             .C2, .C2, .C2, .pause, .pause,
-            .C2, .H1, .A1, .H1, .C2, .D2, .pause,
+            .C2, .B1, .A1, .B1, .C2, .D2, .pause,
             .E2, .E2, .E2, .pause,
             .E2, .D2, .C2, .D2, .E2, .F2, .pause,
             .G2, .pause, .C2, .pause, .A2, .pause,
@@ -240,12 +240,12 @@ public class PianoScene: SKScene {
         ]
         
         playSong(with: jingleBellsNotes,
-                 speed: 0.3,
+                 speed: 0.35,
                  chosenSong: Song(rawValue: sender.tag)!)
     }
     
     private func playSong(with notes: [Note], speed: TimeInterval, chosenSong: Song) {
-        if isHeartAndSoulPlaying || isJingleBellsPlaying {
+        guard !(isHeartAndSoulPlaying || isJingleBellsPlaying) else {
             timer?.invalidate()
             timer = nil
             isHeartAndSoulPlaying = false
@@ -264,7 +264,6 @@ public class PianoScene: SKScene {
         var i = 0
         timer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { (timer) in
             if notes[i] != .pause {
-                
                 if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
                     pianoKey.handleTouch()
                     if chosenSong == .heartAndSoul {
@@ -397,11 +396,14 @@ public class WelcomeScene: SKScene {
         let scene = PianoScene(size: self.view!.frame.size)
         UIView.animate(withDuration: 0.5, animations: {
             self.skipButton.alpha = 0.0
-            self.speechLabel.alpha = 0.0
+            if self.speechLabel.alpha > 0.0 {
+                self.speechLabel.transform = CGAffineTransform(scaleX: 0.2, y: 0.2)
+                self.speechLabel.alpha = 0.0
+            }
+            self.speechSynthesizer.stop()
         }) { (_) in
             self.view?.presentScene(scene, transition: horizontalTransition)
             self.speechLabel.removeFromSuperview()
-            self.speechSynthesizer.stop()
             self.speechSynthesizer = nil
         }
     }
@@ -410,9 +412,13 @@ public class WelcomeScene: SKScene {
 extension WelcomeScene: SpeechSynthesizerDelegate {
     func changeLabel(i: Int) {
         if i == sentences.count - 1 {
-            skipButton.removeFromSuperview()
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: {
+            self.skipButton.removeFromSuperview()
+            UIView.animate(withDuration: 1.5, delay: 0.0, options: [], animations: {
+                self.speechLabel.transform = CGAffineTransform(scaleX: 20.0, y: 20.0)
+                self.speechLabel.alpha = 0.0
+            }, completion: { _ in
                 self.skipScene()
+                return
             })
         }
         skipButton.isEnabled = true
@@ -435,10 +441,6 @@ class SpeechSynthesizer: NSObject {
         super.init()
         self.sentences = sentences
         synthesizer.delegate = self
-    }
-    
-    func setupSentences(_ sentences: [String]) {
-        self.sentences = sentences
     }
     
     func speak() {
