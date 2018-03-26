@@ -8,7 +8,8 @@ public protocol PianoDelegate {
 }
     
     public enum Note: String {
-        case C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, B1, B1b,
+        case
+        C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, B1, B1b,
         C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, B2, B2b,
         pause
     }
@@ -17,15 +18,15 @@ public class Piano: SKShapeNode {
     
     public var delegate: PianoDelegate?
     
-    public var isHeartAndSoulPlaying: Bool = false
+    public static var isHeartAndSoulPlaying: Bool = false
     
-    public var isJingleBellsPlaying: Bool = false
-    
-    private var timer: Timer?
+    public static var isJingleBellsPlaying: Bool = false
     
     public enum Song: Int {
         case heartAndSoul, jingleBells
     }
+    
+    private var timer: Timer?
     
     var snowEmitter: SKEmitterNode?
     
@@ -46,6 +47,52 @@ public class Piano: SKShapeNode {
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func playSong(with notes: [Note], speed: TimeInterval, chosenSong: Song) {
+        guard !(Piano.isHeartAndSoulPlaying || Piano.isJingleBellsPlaying) else {
+            timer?.invalidate()
+            timer = nil
+            if Piano.isHeartAndSoulPlaying {
+                delegate?.setHeartAndSoul(value: false)
+            }
+            
+            if Piano.isJingleBellsPlaying {
+                delegate?.setJingleBells(value: false)
+            }
+            return
+        }
+        
+        switch chosenSong {
+        case .heartAndSoul:
+            delegate?.setHeartAndSoul(value: true)
+        case .jingleBells:
+            delegate?.setJingleBells(value: true)
+            generateSnow()
+        }
+        
+        var i = 0
+        timer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { (timer) in
+            if notes[i] != .pause {
+                if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
+                    pianoKey.handleTouch()
+                    if chosenSong == .heartAndSoul {
+                        self.generateEmitter(position: CGPoint(x: pianoKey.frame.midX,
+                                                               y: pianoKey.frame.maxY))
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
+                        pianoKey.handleEndOfTouch()
+                    })
+                }
+                
+                if i == notes.count - 1 {
+                    self.delegate?.setHeartAndSoul(value: false)
+                    self.delegate?.setJingleBells(value: false)
+                    timer.invalidate()
+                }
+            }
+            i += 1
+        }
     }
     
     public func setupKeys() {
@@ -111,52 +158,6 @@ public class Piano: SKShapeNode {
         self.addChild(piano)
     }
     
-    public func playSong(with notes: [Note], speed: TimeInterval, chosenSong: Song) {
-        guard !(isHeartAndSoulPlaying || isJingleBellsPlaying) else {
-            timer?.invalidate()
-            timer = nil
-            if isHeartAndSoulPlaying {
-                delegate?.setHeartAndSoul(value: false)
-            }
-            
-            if isJingleBellsPlaying {
-                delegate?.setJingleBells(value: false)
-            }
-            return
-        }
-        
-        switch chosenSong {
-        case .heartAndSoul:
-            delegate?.setHeartAndSoul(value: true)
-        case .jingleBells:
-            delegate?.setJingleBells(value: true)
-            generateSnow()
-        }
-        
-        var i = 0
-        timer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { (timer) in
-            if notes[i] != .pause {
-                if let pianoKey = self.childNode(withName: notes[i].rawValue) as? PianoKey {
-                    pianoKey.handleTouch()
-                    if chosenSong == .heartAndSoul {
-                        self.generateEmitter(position: CGPoint(x: pianoKey.frame.midX,
-                                                               y: pianoKey.frame.maxY))
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
-                        pianoKey.handleEndOfTouch()
-                    })
-                }
-                
-                if i == notes.count - 1 {
-                    self.delegate?.setHeartAndSoul(value: false)
-                    self.delegate?.setJingleBells(value: false)
-                    timer.invalidate()
-                }
-            }
-            i += 1
-        }
-    }
-    
     private func generateEmitter(position: CGPoint) {
         let emitter = SKEmitterNode(fileNamed: "HeartParticle")!
         emitter.numParticlesToEmit = 7
@@ -171,7 +172,7 @@ public class Piano: SKShapeNode {
     
     private func generateSnow() {
         snowEmitter = SKEmitterNode(fileNamed: "SnowParticle")!
-        snowEmitter?.position = CGPoint(x: 300, y: 400)
+        snowEmitter?.position = CGPoint(x: 300, y: 500)
         self.addChild(snowEmitter!)
     }
 }

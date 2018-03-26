@@ -119,7 +119,7 @@ public class PianoScene: SKScene {
         ]
         
         piano.playSong(with: heartAndSoulNotes,
-                       speed: 0.5,
+                       speed: 0.45,
                        chosenSong: Piano.Song(rawValue: sender.tag)!)
     }
     
@@ -166,7 +166,7 @@ extension PianoScene: PianoDelegate {
         }
         widthButton.isEnabled = !value
         heightButton.isEnabled = !value
-        piano.isJingleBellsPlaying = value
+        Piano.isJingleBellsPlaying = value
     }
     
     public func setHeartAndSoul(value: Bool) {
@@ -175,7 +175,7 @@ extension PianoScene: PianoDelegate {
             "▶ play Heart and Soul ❤️", for: .normal)
         widthButton.isEnabled = !value
         heightButton.isEnabled = !value
-        self.backgroundColor = value ? UIColor.heartPink : UIColor.background
-        piano.isHeartAndSoulPlaying = value
+        self.backgroundColor = value ? UIColor.heartAndSoul : UIColor.background
+        Piano.isHeartAndSoulPlaying = value
     }
 }

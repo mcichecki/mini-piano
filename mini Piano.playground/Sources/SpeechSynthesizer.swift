@@ -7,14 +7,16 @@ protocol SpeechSynthesizerDelegate: class {
 
 class SpeechSynthesizer: NSObject {
     
+    weak var delegate: SpeechSynthesizerDelegate?
+    
     private let synthesizer = AVSpeechSynthesizer()
     private var i: Int = 0
     private var sentences: [String] = []
-    weak var delegate: SpeechSynthesizerDelegate?
+    private let notes = ["c","d","e","f","g","a","b"]
     
-    init(_ sentences: [String]) {
+    init(_ sentences: [String]? = nil) {
         super.init()
-        self.sentences = sentences
+        self.sentences = sentences ?? []
         synthesizer.delegate = self
     }
     
@@ -31,9 +33,25 @@ class SpeechSynthesizer: NSObject {
         synthesizer.speak(utterance)
     }
     
+    func speakNote(_ note: String) {
+        let noteUtterance = AVSpeechUtterance(string: String(note.first!).lowercased())
+        noteUtterance.rate = 0.6
+        noteUtterance.pitchMultiplier = mapNoteToPitch(note)
+        synthesizer.speak(noteUtterance)
+    }
+    
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
         self.sentences = []
+    }
+    
+    private func mapNoteToPitch(_ note: String) -> Float {
+        let noteToProcess = note.lowercased()
+        let level = Float(noteToProcess.trimmingCharacters(in: CharacterSet.decimalDigits.inverted))
+        let letter =  Float(notes.index(of: String(noteToProcess.first!))! + (level == 1 ? 0 : notes.count))
+        print(letter)
+        let pitch = 1.5 * ((letter))/(13) + 0.5
+        return pitch
     }
 }
 
