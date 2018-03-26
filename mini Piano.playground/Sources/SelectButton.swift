@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public class ConfirmButton: UIButton {
+public class SelectButton: UIButton {
     
     var isClicked = false
     private var handleClick: () -> ()!
@@ -25,7 +25,7 @@ public class ConfirmButton: UIButton {
         self.backgroundColor = UIColor.button
         self.setTitle("X", for: .normal)
         if let fontLabel = self.titleLabel?.font {
-            self.titleLabel!.font = fontLabel.withSize(26.0)
+            self.titleLabel!.font = fontLabel.withSize(24.0)
         }
     }
     

@@ -10,8 +10,8 @@ public class PianoScene: SKScene {
     private var playJingleBellsButton = UIButton(frame: CGRect())
     private var widthLabel = UILabel(frame: CGRect())
     private var heightLabel = UILabel(frame: CGRect())
-    private var widthButton: ConfirmButton!
-    private var heightButton: ConfirmButton!
+    private var widthButton: SelectButton!
+    private var heightButton: SelectButton!
     
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
@@ -50,7 +50,7 @@ public class PianoScene: SKScene {
             self.playHeartAndSoulButton.transform = scaleTransform
         }, completion: nil)
         
-        widthButton = ConfirmButton(handleClick: {
+        widthButton = SelectButton(handleClick: {
             if self.widthButton.isClicked {
                 WhitePianoKey.width = 40.0
                 BlackPianoKey.width = 28.0
@@ -76,7 +76,7 @@ public class PianoScene: SKScene {
         widthLabel.textAlignment = .right
         self.view!.addSubview(widthLabel)
         
-        heightButton = ConfirmButton(handleClick: {
+        heightButton = SelectButton(handleClick: {
             if self.heightButton.isClicked {
                 WhitePianoKey.height = 156.0
                 BlackPianoKey.height = 92.0

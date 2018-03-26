@@ -7,14 +7,13 @@ public class WelcomeScene: SKScene {
     
     private var sentences: [String] = []
     
-    private let leftView: UIView = UIView(frame: CGRect.zero)
-    private let rightView: UIView = UIView(frame: CGRect.zero)
+    private let welcomeView: UIView = UIView(frame: CGRect.zero)
     private let speechLabel: UILabel = UILabel(frame: CGRect.zero)
     private let skipButton: UIButton = UIButton(frame: CGRect.zero)
     
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
-        self.backgroundColor = UIColor.background
+        self.backgroundColor = UIColor.darkBackground
         setupWelcomeScene()
     }
     
@@ -22,42 +21,35 @@ public class WelcomeScene: SKScene {
         let frameWidth = self.view!.frame.width
         let frameHeight = self.view!.frame.height
         
-        leftView.frame = CGRect(x: 0,
-                                y: 0,
-                                width: frameWidth/2,
-                                height: frameHeight)
-        leftView.backgroundColor = UIColor.darkBackground
-        self.view!.addSubview(leftView)
+        welcomeView.frame = CGRect(x: frameWidth/2,
+                                   y: 0,
+                                   width: 0,
+                                   height: frameHeight)
+        welcomeView.backgroundColor = UIColor.background
+        self.view!.addSubview(welcomeView)
         
-        rightView.frame = CGRect(x: frameWidth/2,
-                                 y: 0,
-                                 width: frameWidth/2,
-                                 height: frameHeight)
-        rightView.backgroundColor = UIColor.darkBackground
-        self.view!.addSubview(rightView)
-        
-        speechLabel.frame = CGRect(x: 0, y: 100, width: 400, height: 40)
+        speechLabel.frame = CGRect(x: 0, y: 100, width: 500, height: 40)
         speechLabel.center.x = self.view!.center.x
         speechLabel.textAlignment = .center
-        speechLabel.font = speechLabel.font.withSize(26.0)
+        speechLabel.font = speechLabel.font.withSize(32.0)
         speechLabel.textColor = UIColor.white
         self.view!.addSubview(speechLabel)
         
-        skipButton.frame = CGRect(x: frameWidth/2-25, y: frameHeight, width: 50, height: 30)
+        skipButton.frame = CGRect(x: 0, y: frameHeight, width: 50, height: 30)
         skipButton.setTitle("skip", for: .normal)
+        skipButton.center.x = self.view!.center.x
         skipButton.contentHorizontalAlignment = .center
         skipButton.addTarget(self, action: #selector(skipScene), for: .touchUpInside)
         skipButton.isEnabled = false
         self.view!.addSubview(skipButton)
         
         UIView.animate(withDuration: 2.0, animations: {
-            self.leftView.frame = CGRect(x: 0, y: 0, width: 0, height: frameHeight)
-            self.rightView.frame = CGRect(x: frameWidth, y: 0, width: 0, height: frameHeight)
+            self.welcomeView.frame = CGRect(x: 0, y: 0, width: frameWidth, height: frameHeight)
             self.skipButton.frame = CGRect(origin: CGPoint(x: frameWidth/2 - 25, y: frameHeight - 50), size: self.skipButton.frame.size)
             
         }) { (_) in
-            self.leftView.removeFromSuperview()
-            self.rightView.removeFromSuperview()
+            self.backgroundColor = UIColor.background
+            self.welcomeView.removeFromSuperview()
             self.startIntroduction()
         }
     }
