@@ -6,6 +6,7 @@ public class WelcomeScene: SKScene {
     var speechSynthesizer: SpeechSynthesizer!
     
     private var sentences: [String] = []
+    private var noteEmitter: SKEmitterNode?
     
     private let welcomeView: UIView = UIView(frame: CGRect.zero)
     private let speechLabel: UILabel = UILabel(frame: CGRect.zero)
@@ -43,6 +44,7 @@ public class WelcomeScene: SKScene {
         skipButton.isEnabled = false
         self.view!.addSubview(skipButton)
         
+        
         UIView.animate(withDuration: 2.0, animations: {
             self.welcomeView.frame = CGRect(x: 0, y: 0, width: frameWidth, height: frameHeight)
             self.skipButton.frame = CGRect(origin: CGPoint(x: frameWidth/2 - 25, y: frameHeight - 50), size: self.skipButton.frame.size)
@@ -51,6 +53,7 @@ public class WelcomeScene: SKScene {
             self.backgroundColor = UIColor.background
             self.welcomeView.removeFromSuperview()
             self.startIntroduction()
+            self.setupNoteEmitter()
         }
     }
     
@@ -62,7 +65,7 @@ public class WelcomeScene: SKScene {
             "Piano is a powerful instrument",
             "With only two octaves 🎼",
             "you can play many songs 🎶",
-            "Today you will play by yourself",
+            "Today you can play your songs",
             "and see how to play",
             "Heart and Soul 💛",
             "and Jingle Bells 🎄",
@@ -77,6 +80,8 @@ public class WelcomeScene: SKScene {
     @objc private func skipScene() {
         let horizontalTransition = SKTransition.push(with: .down, duration: 1.0)
         let scene = PianoScene(size: self.view!.frame.size)
+        self.noteEmitter!.particleBirthRate = 0.0
+        self.noteEmitter = nil
         UIView.animate(withDuration: 0.5, animations: {
             self.skipButton.alpha = 0.0
             if self.speechLabel.alpha > 0.0 {
@@ -89,6 +94,13 @@ public class WelcomeScene: SKScene {
             self.speechLabel.removeFromSuperview()
             self.speechSynthesizer = nil
         }
+    }
+    
+    private func setupNoteEmitter() {
+        noteEmitter = SKEmitterNode(fileNamed: "NoteParticle")!
+        noteEmitter!.position = CGPoint(x: self.view!.frame.maxX, y: 0)
+        noteEmitter!.zPosition = -1.0
+        self.addChild(noteEmitter!)
     }
 }
 
