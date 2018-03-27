@@ -8,10 +8,12 @@ public class PianoScene: SKScene {
     // UI
     private var playHeartAndSoulButton = UIButton(frame: CGRect())
     private var playJingleBellsButton = UIButton(frame: CGRect())
-    private var widthLabel = UILabel(frame: CGRect())
-    private var heightLabel = UILabel(frame: CGRect())
     private var widthButton: SelectButton!
+    private var widthLabel = UILabel(frame: CGRect())
     private var heightButton: SelectButton!
+    private var heightLabel = UILabel(frame: CGRect())
+    private var synthesizerButton: SelectButton!
+    private var synthesizerLabel = UILabel(frame: CGRect())
     
     public override func didMove(to view: SKView) {
         super.didMove(to: view)
@@ -19,7 +21,7 @@ public class PianoScene: SKScene {
         
         let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
         piano = Piano(timer: Timer())
-        piano.position = CGPoint(x: startingPoint, y: 0)
+        piano.position = CGPoint(x: startingPoint, y: 40)
         piano.delegate = self
         self.addChild(piano)
         setupUIComponents()
@@ -61,7 +63,7 @@ public class PianoScene: SKScene {
             self.piano.removeFromParent()
             self.piano.removeAllChildren()
             let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
-            self.piano.position = CGPoint(x: startingPoint, y: 0)
+            self.piano.position = CGPoint(x: startingPoint, y: 40)
             self.piano.setupKeys()
             self.addChild(self.piano)
         })
@@ -87,7 +89,7 @@ public class PianoScene: SKScene {
             self.piano.removeFromParent()
             self.piano.removeAllChildren()
             let startingPoint: CGFloat = self.view!.frame.width/2 - 7 * WhitePianoKey.width - 7
-            self.piano.position = CGPoint(x: startingPoint, y: 0)
+            self.piano.position = CGPoint(x: startingPoint, y: 40)
             self.piano.setupKeys()
             self.addChild(self.piano)
         })
@@ -99,9 +101,22 @@ public class PianoScene: SKScene {
         heightLabel.text = "increase height"
         heightLabel.textColor = UIColor.white
         heightLabel.textAlignment = .right
-        self.view!.addSubview(heightLabel)
         
+        self.view!.addSubview(heightLabel)
         self.view!.addSubview(heightButton)
+        
+        synthesizerButton = SelectButton(handleClick: {
+            PianoKey.isSpeakerEnabled = self.synthesizerButton.isClicked
+        })
+        synthesizerButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: heightButton.frame.minY - 80)
+        synthesizerLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
+        synthesizerLabel.center.y = synthesizerButton.center.y
+        synthesizerLabel.text = "enable speech"
+        synthesizerLabel.textColor = UIColor.white
+        synthesizerLabel.textAlignment = .right
+        
+        self.view!.addSubview(synthesizerButton)
+        self.view!.addSubview(synthesizerLabel)
     }
     
     @objc private func playHeartAndSoul(sender: UIButton) {
@@ -117,7 +132,9 @@ public class PianoScene: SKScene {
             .G2, .pause, .C2, .pause, .A2, .pause,
             .G2, .F2, .E2, .D2, .C2
         ]
-        
+        if synthesizerButton.isClicked {
+            synthesizerButton.isClicked = false
+        }
         piano.playSong(with: heartAndSoulNotes,
                        speed: 0.45,
                        chosenSong: Piano.Song(rawValue: sender.tag)!)
@@ -142,15 +159,13 @@ public class PianoScene: SKScene {
             .G2, .G2, .F2, .D2, .C2
         ]
         
+        if synthesizerButton.isClicked {
+            synthesizerButton.isClicked = false
+        }
+        
         piano.playSong(with: jingleBellsNotes,
                        speed: 0.35,
                        chosenSong: Piano.Song(rawValue: sender.tag)!)
-    }
-    
-    @objc private func sizePressed() {
-        WhitePianoKey.width = 40
-        removeAllChildren()
-        piano.setupKeys()
     }
 }
 
@@ -166,6 +181,7 @@ extension PianoScene: PianoDelegate {
         }
         widthButton.isEnabled = !value
         heightButton.isEnabled = !value
+        synthesizerButton.isEnabled = !value
         Piano.isJingleBellsPlaying = value
     }
     
@@ -175,6 +191,7 @@ extension PianoScene: PianoDelegate {
             "▶ play Heart and Soul ❤️", for: .normal)
         widthButton.isEnabled = !value
         heightButton.isEnabled = !value
+        synthesizerButton.isEnabled = !value
         self.backgroundColor = value ? UIColor.heartAndSoul : UIColor.background
         Piano.isHeartAndSoulPlaying = value
     }

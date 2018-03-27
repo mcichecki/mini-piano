@@ -7,7 +7,7 @@ public class PianoKey: SKShapeNode {
         return UIColor.white
     }
     
-    public static var isSpeakerEnabled = true
+    public static var isSpeakerEnabled = false
     
     private var note: Note!
     private var sound: AVAudioPlayer!

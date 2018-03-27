@@ -71,6 +71,8 @@ public class Piano: SKShapeNode {
             generateSnow()
         }
         
+        PianoKey.isSpeakerEnabled = false
+        
         var i = 0
         timer = Timer.scheduledTimer(withTimeInterval: speed, repeats: true) { (timer) in
             if notes[i] != .pause {
