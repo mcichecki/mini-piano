@@ -38,6 +38,7 @@ public class WelcomeScene: SKScene {
         
         skipButton.frame = CGRect(x: 0, y: frameHeight, width: 50, height: 30)
         skipButton.setTitle("skip", for: .normal)
+        skipButton.setTitleColor(UIColor.darkGray, for: .normal)
         skipButton.center.x = self.view!.center.x
         skipButton.contentHorizontalAlignment = .center
         skipButton.addTarget(self, action: #selector(skipScene), for: .touchUpInside)
@@ -106,7 +107,12 @@ public class WelcomeScene: SKScene {
 
 extension WelcomeScene: SpeechSynthesizerDelegate {
     func changeLabel(i: Int) {
-        if i == sentences.count - 1 {
+        speechLabel.text = sentences[i]
+        switch i {
+        case 0:
+            skipButton.isEnabled = true
+            skipButton.setTitleColor(UIColor.white, for: .normal)
+        case sentences.count - 1:
             self.skipButton.removeFromSuperview()
             UIView.animate(withDuration: 1.5, delay: 0.0, options: [], animations: {
                 self.speechLabel.transform = CGAffineTransform(scaleX: 20.0, y: 20.0)
@@ -115,8 +121,8 @@ extension WelcomeScene: SpeechSynthesizerDelegate {
                 self.skipScene()
                 return
             })
+        default:
+            return
         }
-        skipButton.isEnabled = true
-        speechLabel.text = sentences[i]
     }
 }

@@ -24,3 +24,4 @@ let welcomeScene = WelcomeScene(size: sceneSize)
 view.presentScene(welcomeScene)
 PlaygroundPage.current.liveView = view
 PlaygroundPage.current.needsIndefiniteExecution = true
+

@@ -121,22 +121,29 @@ public class PianoScene: SKScene {
     
     @objc private func playHeartAndSoul(sender: UIButton) {
         let heartAndSoulNotes: [Note] = [
-            .C2, .C2, .E2, .G2,
-            .A1, .A1, .C2, .E2,
-            .F1, .F1, .A1, .C2,
-            .G1, .G1, .B1, .D2, .pause,
-            .C2, .C2, .C2, .pause, .pause,
-            .C2, .B1, .A1, .B1, .C2, .D2, .pause,
-            .E2, .E2, .E2, .pause,
-            .E2, .D2, .C2, .D2, .E2, .F2, .pause,
-            .G2, .pause, .C2, .pause, .A2, .pause,
-            .G2, .F2, .E2, .D2, .C2
+            .C2, .C2, .E2, .E2,
+            .A1, .A1, .C2, .C2,
+            .D2, .D2, .F2, .F2,
+            .G1, .G1, .B1, .B1,
+            .C2, .pause, .C2, .pause,
+            .C2, .pause, .pause, .pause,
+            .pause, .C2, .B1, .A1,
+            .B1, .C2, .D2, .pause,
+            .E2, .pause, .E2, .pause,
+            .E2, .pause, .pause, .pause,
+            .pause, .E2, .D2, .C2,
+            .D2, .E2, .F2, .pause,
+            .G2, .pause, .pause, .pause,
+            .C2, .pause, .pause, .A2,
+            .pause, .pause, .G2,
+            .F2, .E2, .D2, .C2
         ]
+        
         if synthesizerButton.isClicked {
             synthesizerButton.isClicked = false
         }
         piano.playSong(with: heartAndSoulNotes,
-                       speed: 0.45,
+                       speed: 0.35,
                        chosenSong: Piano.Song(rawValue: sender.tag)!)
     }
     

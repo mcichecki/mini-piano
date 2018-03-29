@@ -11,7 +11,6 @@ public class PianoKey: SKShapeNode {
     
     private var note: Note!
     private var sound: AVAudioPlayer!
-    private let caShapeLayer = CAShapeLayer()
     private var keyAlpha: CGFloat = 1.0
     private var keyPosition: CGPoint = CGPoint()
     private let speechSynthesizer = SpeechSynthesizer()

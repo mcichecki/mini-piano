@@ -153,7 +153,12 @@ public class Piano: SKShapeNode {
     }
     
     private func setupPiano(_ rect: CGRect) {
-        let piano = SKShapeNode(rect: rect)
+        let piano = SKShapeNode()
+        
+        let path = UIBezierPath(roundedRect: rect,
+                                byRoundingCorners: [.bottomLeft, .bottomRight],
+                                cornerRadii: CGSize(width: 5.0, height: 5.0)).cgPath
+        piano.path = path
         piano.fillColor = UIColor.piano
         piano.strokeColor = UIColor.piano
         piano.zPosition = 2.0
