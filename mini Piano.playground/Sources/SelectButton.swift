@@ -9,7 +9,7 @@ public class SelectButton: UIButton {
             self.setTitle(newValue ? "✓" : "X", for: .normal)
         }
     }
-    private var handleClick: () -> ()!
+    private var handleClick: () -> ()
     
     public init(handleClick: @escaping () -> ()) {
         self.handleClick = handleClick
@@ -42,8 +42,8 @@ public class SelectButton: UIButton {
     public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         isClicked = !isClicked
         self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-//        self.backgroundColor = isClicked ? UIColor.background : UIColor.button
-//        self.setTitle(isClicked ? "✓" : "X", for: .normal)
+        //        self.backgroundColor = isClicked ? UIColor.background : UIColor.button
+        //        self.setTitle(isClicked ? "✓" : "X", for: .normal)
         handleClick()
     }
 }

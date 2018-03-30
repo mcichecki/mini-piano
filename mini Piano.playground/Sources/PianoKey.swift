@@ -97,7 +97,7 @@ public class PianoKey: SKShapeNode {
         sound.currentTime = TimeInterval(0.0)
         sound.play()
     }
-
+    
     private func speakNote() {
         speechSynthesizer.stop()
         speechSynthesizer.speakNote(note.rawValue)

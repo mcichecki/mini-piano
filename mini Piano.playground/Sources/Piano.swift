@@ -6,13 +6,13 @@ public protocol PianoDelegate {
     func setHeartAndSoul(value: Bool)
     func setJingleBells(value: Bool)
 }
-    
-    public enum Note: String {
-        case
-        C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, B1, B1b,
-        C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, B2, B2b,
-        pause
-    }
+
+public enum Note: String {
+    case
+    C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, B1, B1b,
+    C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, B2, B2b,
+    pause
+}
 
 public class Piano: SKShapeNode {
     
