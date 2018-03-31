@@ -48,7 +48,8 @@ public class WelcomeScene: SKScene {
         
         UIView.animate(withDuration: 2.0, animations: {
             self.welcomeView.frame = CGRect(x: 0, y: 0, width: frameWidth, height: frameHeight)
-            self.skipButton.frame = CGRect(origin: CGPoint(x: frameWidth/2 - 25, y: frameHeight - 50), size: self.skipButton.frame.size)
+            self.skipButton.frame = CGRect(origin: CGPoint(x: frameWidth/2 - 25, y: frameHeight - 50),
+                                           size: self.skipButton.frame.size)
             
         }) { (_) in
             self.backgroundColor = UIColor.background

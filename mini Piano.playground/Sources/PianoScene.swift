@@ -5,7 +5,6 @@ public class PianoScene: SKScene {
     private var timer: Timer!
     private var piano: Piano!
     
-    // UI
     private var playHeartAndSoulButton = UIButton(frame: CGRect())
     private var playJingleBellsButton = UIButton(frame: CGRect())
     private var widthButton: SelectButton!
@@ -46,10 +45,12 @@ public class PianoScene: SKScene {
         playJingleBellsButton.tag = Piano.Song.jingleBells.rawValue
         self.view!.addSubview(playJingleBellsButton)
         
-        UIView.animate(withDuration: 0.5, delay: 0.0, options: [.repeat, .autoreverse, .allowUserInteraction], animations: {
-            let scaleTransform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-            self.playJingleBellsButton.transform = scaleTransform
-            self.playHeartAndSoulButton.transform = scaleTransform
+        UIView.animate(withDuration: 0.5, delay: 0.0,
+                       options: [.repeat, .autoreverse, .allowUserInteraction],
+                       animations: {
+                        let scaleTransform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+                        self.playJingleBellsButton.transform = scaleTransform
+                        self.playHeartAndSoulButton.transform = scaleTransform
         }, completion: nil)
         
         widthButton = SelectButton(handleClick: {
@@ -71,7 +72,8 @@ public class PianoScene: SKScene {
         widthButton.center.y = playJingleBellsButton.center.y
         self.view!.addSubview(widthButton)
         
-        widthLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
+        widthLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0),
+                                  size: CGSize(width: 120.0, height: 20.0))
         widthLabel.center.y = widthButton.center.y
         widthLabel.text = "increase width"
         widthLabel.textColor = UIColor.white
@@ -96,7 +98,8 @@ public class PianoScene: SKScene {
         
         heightButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: 0)
         heightButton.center.y = playHeartAndSoulButton.center.y
-        heightLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
+        heightLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0),
+                                   size: CGSize(width: 120.0, height: 20.0))
         heightLabel.center.y = heightButton.center.y
         heightLabel.text = "increase height"
         heightLabel.textColor = UIColor.white
@@ -108,8 +111,10 @@ public class PianoScene: SKScene {
         synthesizerButton = SelectButton(handleClick: {
             PianoKey.isSpeakerEnabled = self.synthesizerButton.isClicked
         })
-        synthesizerButton.frame.origin = CGPoint(x: self.view!.frame.width - 50, y: heightButton.frame.minY - 80)
-        synthesizerLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0), size: CGSize(width: 120.0, height: 20.0))
+        synthesizerButton.frame.origin = CGPoint(x: self.view!.frame.width - 50,
+                                                 y: heightButton.frame.minY - 80)
+        synthesizerLabel.frame = CGRect(origin: CGPoint(x: widthButton.frame.minX - 130, y: 0),
+                                        size: CGSize(width: 120.0, height: 20.0))
         synthesizerLabel.center.y = synthesizerButton.center.y
         synthesizerLabel.text = "enable speech"
         synthesizerLabel.textColor = UIColor.white

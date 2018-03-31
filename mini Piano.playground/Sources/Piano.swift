@@ -17,24 +17,17 @@ public enum Note: String {
 public class Piano: SKShapeNode {
     
     public var delegate: PianoDelegate?
-    
+    public var snowEmitter: SKEmitterNode?
     public static var isHeartAndSoulPlaying: Bool = false
-    
     public static var isJingleBellsPlaying: Bool = false
-    
     public enum Song: Int {
         case heartAndSoul, jingleBells
     }
     
     private var timer: Timer?
-    
-    var snowEmitter: SKEmitterNode?
-    
     private var noteSounds: [String: AVAudioPlayer] = [:]
-    
     private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .B1,
                                       .C2, .D2, .E2, .F2, .G2, .A2, .B2]
-    
     private let blackNotes: [Note] = [.D1b, .E1b, .G1b, .A1b, .B1b,
                                       .D2b, .E2b, .G2b, .A2b, .B2b]
     
