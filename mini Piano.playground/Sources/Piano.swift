@@ -9,8 +9,8 @@ public protocol PianoDelegate {
 
 public enum Note: String {
     case
-    C1, D1b, D1, E1, E1b, F1, G1, G1b, A1, A1b, B1, B1b,
-    C2, D2b, D2, E2, E2b, F2, G2, G2b, A2, A2b, B2, B2b,
+    C3, D3b, D3, E3, E3b, F3, G3, G3b, A3, A3b, B3, B3b,
+    C4, D4b, D4, E4, E4b, F4, G4, G4b, A4, A4b, B4, B4b,
     pause
 }
 
@@ -26,10 +26,10 @@ public class Piano: SKShapeNode {
     
     private var timer: Timer?
     private var noteSounds: [String: AVAudioPlayer] = [:]
-    private let whiteNotes: [Note] = [.C1, .D1, .E1, .F1, .G1, .A1, .B1,
-                                      .C2, .D2, .E2, .F2, .G2, .A2, .B2]
-    private let blackNotes: [Note] = [.D1b, .E1b, .G1b, .A1b, .B1b,
-                                      .D2b, .E2b, .G2b, .A2b, .B2b]
+    private let whiteNotes: [Note] = [.C3, .D3, .E3, .F3, .G3, .A3, .B3,
+                                      .C4, .D4, .E4, .F4, .G4, .A4, .B4]
+    private let blackNotes: [Note] = [.D3b, .E3b, .G3b, .A3b, .B3b,
+                                      .D4b, .E4b, .G4b, .A4b, .B4b]
     
     public init(timer: Timer) {
         self.timer = timer

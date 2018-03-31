@@ -48,7 +48,7 @@ class SpeechSynthesizer: NSObject {
     private func mapNoteToPitch(_ note: String) -> Float {
         let noteToProcess = note.lowercased()
         let level = Float(noteToProcess.trimmingCharacters(in: CharacterSet.decimalDigits.inverted))
-        let letter =  Float(notes.index(of: String(noteToProcess.first!))! + (level == 1 ? 0 : notes.count))
+        let letter =  Float(notes.index(of: String(noteToProcess.first!))! + (level == 3 ? 0 : notes.count))
         let pitch = 1.5 * ((letter))/(13) + 0.5
         return pitch
     }

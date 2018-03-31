@@ -126,22 +126,22 @@ public class PianoScene: SKScene {
     
     @objc private func playHeartAndSoul(sender: UIButton) {
         let heartAndSoulNotes: [Note] = [
-            .C2, .C2, .E2, .E2,
-            .A1, .A1, .C2, .C2,
-            .D2, .D2, .F2, .F2,
-            .G1, .G1, .B1, .B1,
-            .C2, .pause, .C2, .pause,
-            .C2, .pause, .pause, .pause,
-            .pause, .C2, .B1, .A1,
-            .B1, .C2, .D2, .pause,
-            .E2, .pause, .E2, .pause,
-            .E2, .pause, .pause, .pause,
-            .pause, .E2, .D2, .C2,
-            .D2, .E2, .F2, .pause,
-            .G2, .pause, .pause, .pause,
-            .C2, .pause, .pause, .A2,
-            .pause, .pause, .G2,
-            .F2, .E2, .D2, .C2
+            .C4, .C4, .E4, .E4,
+            .A3, .A3, .C4, .C4,
+            .D4, .D4, .F4, .F4,
+            .G3, .G3, .B3, .B3,
+            .C4, .pause, .C4, .pause,
+            .C4, .pause, .pause, .pause,
+            .pause, .C4, .B3, .A3,
+            .B3, .C4, .D4, .pause,
+            .E4, .pause, .E4, .pause,
+            .E4, .pause, .pause, .pause,
+            .pause, .E4, .D4, .C4,
+            .D4, .E4, .F4, .pause,
+            .G4, .pause, .pause, .pause,
+            .C4, .pause, .pause, .A4,
+            .pause, .pause, .G4,
+            .F4, .E4, .D4, .C4
         ]
         
         if synthesizerButton.isClicked {
@@ -154,21 +154,21 @@ public class PianoScene: SKScene {
     
     @objc private func playJingleBells(sender: UIButton) {
         let jingleBellsNotes: [Note] = [
-            .E2, .E2, .E2, .pause,
-            .E2, .E2, .E2, .pause,
-            .E2, .G2, .C2, .D2,
-            .E2, .pause, .pause, .pause,
-            .F2, .F2, .F2, .F2,
-            .F2, .E2, .E2, .E2, .pause,
-            .E2, .D2, .D2, .E2,
-            .D2, .pause, .G2, .pause,
-            .E2, .E2, .E2, .pause,
-            .E2, .E2, .E2, .pause,
-            .E2, .G2, .C2, .D2,
-            .E2, .pause, .pause, .pause,
-            .F2, .F2, .F2, .F2,
-            .F2, .E2, .E2, .E2, .pause,
-            .G2, .G2, .F2, .D2, .C2
+            .E4, .E4, .E4, .pause,
+            .E4, .E4, .E4, .pause,
+            .E4, .G4, .C4, .D4,
+            .E4, .pause, .pause, .pause,
+            .F4, .F4, .F4, .F4,
+            .F4, .E4, .E4, .E4, .pause,
+            .E4, .D4, .D4, .E4,
+            .D4, .pause, .G4, .pause,
+            .E4, .E4, .E4, .pause,
+            .E4, .E4, .E4, .pause,
+            .E4, .G4, .C4, .D4,
+            .E4, .pause, .pause, .pause,
+            .F4, .F4, .F4, .F4,
+            .F4, .E4, .E4, .E4, .pause,
+            .G4, .G4, .F4, .D4, .C4
         ]
         
         if synthesizerButton.isClicked {
