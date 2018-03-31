@@ -67,8 +67,7 @@ public class WelcomeScene: SKScene {
             "Piano is a powerful instrument",
             "With only two octaves 🎼",
             "you can play many songs 🎶",
-            "Today you can play your songs",
-            "and see how to play",
+            "Today you can also see how to play",
             "Heart and Soul 💛",
             "and Jingle Bells 🎄",
             "Let's go!"
