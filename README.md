@@ -1,2 +1,3 @@
 # mini-piano
-WWDC '18 Scholarship project
+
+WWDC '18 Scholarship project - accepted submission
